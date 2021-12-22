@@ -15,8 +15,6 @@ run pip install -r requirements.txt
 
 set up bounty info and accounts
 
-run main.py
-
 refer to config.yml for adding bounty info
 
 https://github.com/leastchaos/Tracker/blob/main/config/config.yml
@@ -28,3 +26,4 @@ rename to app_list and  add  required api keys
 https://github.com/leastchaos/Tracker/blob/main/credentials/api_list_template.yml
 
 
+run main.py
