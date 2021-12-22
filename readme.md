@@ -1,6 +1,12 @@
-Sample reward format by filled order
-# Usage
+# Summary
+
+it fetches data from exchange using ccxt as the connector and export the data to a sql database.
+then data analysis can be performed using pandas or other library as required.
+
+# Installation
 run pip install -r requirements.txt
+
+# Usage
 
 set up bounty info and accounts
 
@@ -20,7 +26,3 @@ refer to analysis folder for sample output by filled percent order of multiple a
 
 https://github.com/leastchaos/Tracker/blob/main/filled_order.ipynb
 
-# Summary
-
-it fetches data from exchange using ccxt as the connector and export the data to a sql database.
-then data analysis can be performed using pandas or other library as required.
