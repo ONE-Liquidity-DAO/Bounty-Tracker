@@ -10,7 +10,9 @@ refer to config.yml for adding bounty info
 
 https://github.com/leastchaos/Tracker/blob/main/config/config.yml
 
-refer to app_list.yml for adding account
+refer to app_list_template.yml for adding account
+
+rename to app_list and  add  required api keys
 
 https://github.com/leastchaos/Tracker/blob/main/credentials/api_list_template.yml
 
