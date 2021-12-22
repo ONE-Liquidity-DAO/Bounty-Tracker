@@ -3,6 +3,11 @@
 it fetches data from exchange using ccxt as the connector and export the data to a sql database.
 then data analysis can be performed using pandas or other library as required.
 
+refer to analysis folder for sample output by filled percent order of multiple account
+
+https://github.com/leastchaos/Tracker/blob/main/filled_order.ipynb
+
+
 # Installation
 run pip install -r requirements.txt
 
@@ -22,7 +27,4 @@ rename to app_list and  add  required api keys
 
 https://github.com/leastchaos/Tracker/blob/main/credentials/api_list_template.yml
 
-refer to analysis folder for sample output by filled percent order of multiple account
-
-https://github.com/leastchaos/Tracker/blob/main/filled_order.ipynb
 
