@@ -5,6 +5,7 @@ from src.database.database import DataBase
 import ccxt.async_support as ccxt
 import logging
 import asyncio
+import pandas as pd
 
 logger = logging.getLogger(__name__)
 
@@ -15,26 +16,27 @@ class Fetcher:
         exchange_classes: list[ExchangeClass],
         bounty_infos: list[BountyInfo],
         database: DataBase,
-        #queue: asyncio.Queue,
+        # queue: asyncio.Queue,
     ) -> None:
 
         self._exchange_classes = exchange_classes
         self._bounty_infos = bounty_infos
         self._database = database
-        #self._queue = queue
+        # self._queue = queue
 
-    async def fetch_eligible_trades(
+    async def fetch_my_okex_trade(
         self, exchange_class: ExchangeClass, bounty_info: BountyInfo
     ):
+        #TODO: To only collect data after latest trade in database
         symbol = bounty_info.symbol
-        since = 0 #bounty_info.since
-        page = 1
+        since = bounty_info.since
         to = bounty_info.to
         earliest_trade_id = None
+        
         while to > since:
             try:
                 params = {}
-                if  earliest_trade_id:
+                if earliest_trade_id:
                     params = {'after': earliest_trade_id}
                 trades = await exchange_class.exchange.fetch_my_trades(
                     symbol, since=since, limit=None, params=params
@@ -42,8 +44,8 @@ class Fetcher:
                 if len(trades) == 0:
                     break
                 # hacky: picking trade at 0 may skip some orders whose order id are the same
-                # sql table can handle duplicated  entry 
-                if len(trades) >1:
+                # sql table can handle duplicated entry
+                if len(trades) > 1:
                     earliest_trade_id = trades[1]['order']
                 else:
                     earliest_trade_id = trades[0]['order']
@@ -59,7 +61,7 @@ class Fetcher:
                         exchange_name=exchange_name, account_name=account_name
                     )
                     orm_trades.append(orm_trade)
-                #self._queue.put_nowait(orm_trades)
+                # self._queue.put_nowait(orm_trades)
             except ccxt.ExchangeNotAvailable as exc:
                 pass  # retry
             except ccxt.NetworkError as exc:
@@ -73,13 +75,15 @@ class Fetcher:
                 )
                 raise exc
             self._database.commit_task_list_to_sql(orm_trades)
+
     async def loop(
         self, exchange_class: ExchangeClass, bounty_info: BountyInfo, method: str
     ):
         try:
-            if method == "fetch_eligible_trades":
-                await self.fetch_eligible_trades(exchange_class, bounty_info)
+            if method == "fetch_okex_trades":
+                await self.fetch_my_okex_trade(exchange_class, bounty_info)
                 return
+
         except Exception as exc:
             logger.exception(exc, exc_info=True)
 
@@ -87,12 +91,13 @@ class Fetcher:
         tasks = []
         try:
             logger.info("initiated fetching")
-            methods = ["fetch_eligible_trades"]
+            methods = ["fetch_okex_trades"]
             tasks = []
             for exchange_class in self._exchange_classes:
                 for bounty_info in self._bounty_infos:
                     for method in methods:
-                        tasks.append(self.loop(exchange_class, bounty_info, method))
+                        tasks.append(
+                            self.loop(exchange_class, bounty_info, method))
             return await asyncio.gather(*tasks)
 
         except Exception as exc:

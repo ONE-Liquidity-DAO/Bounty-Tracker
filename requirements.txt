@@ -3,3 +3,4 @@ pandas
 ccxt
 pyyaml
 coloredlogs
+.
