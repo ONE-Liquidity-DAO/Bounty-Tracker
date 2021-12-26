@@ -53,6 +53,7 @@ class CCXTOrder:
     cost: float
     postOnly: Optional[bool]
     info: dict  # to convert to string
+    cancel_timestamp: int
     lastTradeTimestamp: Optional[int]
     average: Optional[float]
     stopPrice: Optional[float]
@@ -73,7 +74,7 @@ class CCXTOrder:
             k: v
             for k, v in self.__dict__.items()
             if "__" not in k 
-            and k not in ["info", "current_page", "endTime", "before"]
+            and k not in ["info", "current_page", "endTime", "before", "after"]
         }
 
         for key in ["trades", "fees", "fee"]:
@@ -84,8 +85,9 @@ class CCXTOrder:
 
         return self_dict
 
-    def to_orm_class(self, account_name):
+    def to_orm_class(self, exchange_name, account_name):
         sql_dict = self.to_sql_dict()
+        sql_dict["exchange_name"] = exchange_name
         sql_dict["account_name"] = account_name
         return SQLOrder(**sql_dict)
 

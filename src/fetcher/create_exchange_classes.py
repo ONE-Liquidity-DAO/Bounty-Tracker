@@ -62,6 +62,7 @@ async def main():
     exchange_classes = create_exchange_classes()
     for exchange_info in exchange_classes:
         await exchange_info.exchange.load_markets()
+        await exchange_info.exchange.fetch_closed_orders('BTC/USDT')
         await exchange_info.exchange.close()
     
 if __name__ == "__main__":

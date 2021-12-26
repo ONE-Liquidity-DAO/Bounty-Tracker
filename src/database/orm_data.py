@@ -27,13 +27,10 @@ class SQLTrade(Base):
     fee_rate = Column(Float, nullable=True)
 
 class SQLOrder(Base):
-    __tablename__ = 'OpenOrders'
+    __tablename__ = 'Orders'
     exchange_name = Column(String, primary_key=True)
     account_name = Column(String, primary_key=True)
     id = Column(String, primary_key=True)
-    connector = Column(String, primary_key=True)
-    source = Column(String, primary_key=True)
-    strategy = Column(String, primary_key=True)
     account_name = Column(String, primary_key=True)
     clientOrderId = Column(String, nullable=True)
     datetime = Column(String)
@@ -48,6 +45,7 @@ class SQLOrder(Base):
     filled = Column(Float)
     remaining = Column(Float)
     cost = Column(Float)
+    cancel_timestamp = Column(Integer)
     postOnly = Column(Boolean, nullable=True)
     fee = Column(String, nullable=True)
     average = Column(Float, nullable=True)

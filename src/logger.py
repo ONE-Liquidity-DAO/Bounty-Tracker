@@ -12,7 +12,7 @@ def setup_logging(log_level=logging.INFO,
 
     # Set log format to dislay the logger name
     # and to hunt down verbose logging modules
-    fmt = "%(asctime)s - %(name)-25s %(levelname)-8s %(message)s"
+    fmt = "%(asctime)s,%(msecs)d %(levelname)-8s [%(pathname)s:%(lineno)d] %(message)s'"
 
     # Use colored logging output for console
     coloredlogs.install(level=log_level, fmt=fmt, logger=logger)
