@@ -24,15 +24,18 @@ class Fetcher:
         self._database = database
         # self._queue = queue
 
+    async def fetch_my_okex_orders(self):
+        pass
+
     async def fetch_my_okex_trade(
         self, exchange_class: ExchangeClass, bounty_info: BountyInfo
     ):
-        #TODO: To only collect data after latest trade in database
+        # TODO: To only collect data after latest trade in database
         symbol = bounty_info.symbol
         since = bounty_info.since
         to = bounty_info.to
         earliest_trade_id = None
-        
+
         while to > since:
             try:
                 params = {}
