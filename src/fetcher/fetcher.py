@@ -38,7 +38,6 @@ class Fetcher:
             orders = await exchange_class.exchange.fetch_closed_orders(
                 symbol, since=since, limit=None, params=params
             )
-            print(orders)
             if len(orders) == 0:
                 return [], -1, -1
             # hacky: picking trade at 0 may skip some orders whose order id are the same
@@ -62,7 +61,7 @@ class Fetcher:
             # self._queue.put_nowait(orm_trades)
             return orm_orders, earliest_order_id, to
 
-    async def fetch_my_okex_trade(self,
+    async def fetch_my_okex_trades(self,
                                   exchange_class: ExchangeClass,
                                   symbol: str,
                                   since: int,
@@ -108,7 +107,7 @@ class Fetcher:
                 if earliest_id:
                     params = {'after': earliest_id}
                 if method == 'fetch_okex_trades':
-                    resp_list, earliest_id, to = await self.fetch_my_okex_trade(
+                    resp_list, earliest_id, to = await self.fetch_my_okex_trades(
                         exchange_class, symbol, since=since, params=params
                     )
                 if method == 'fetch_okex_orders':

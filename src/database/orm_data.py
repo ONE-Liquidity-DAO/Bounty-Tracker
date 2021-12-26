@@ -45,7 +45,7 @@ class SQLOrder(Base):
     filled = Column(Float)
     remaining = Column(Float)
     cost = Column(Float)
-    cancel_timestamp = Column(Integer)
+    cancel_timestamp = Column(Integer)  # non-unified params
     postOnly = Column(Boolean, nullable=True)
     fee = Column(String, nullable=True)
     average = Column(Float, nullable=True)
