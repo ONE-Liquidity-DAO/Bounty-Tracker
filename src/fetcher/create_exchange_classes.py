@@ -57,3 +57,13 @@ def create_exchange_classes(cred_location=CREDENTIALS_LOCATION) -> list[Exchange
         )
         exchange_classes.append(exchange_class)
     return exchange_classes
+
+async def main():
+    exchange_classes = create_exchange_classes()
+    for exchange_info in exchange_classes:
+        await exchange_info.exchange.load_markets()
+        await exchange_info.exchange.close()
+    
+if __name__ == "__main__":
+    import asyncio
+    asyncio.run(main())

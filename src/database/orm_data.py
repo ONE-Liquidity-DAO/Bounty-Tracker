@@ -25,3 +25,36 @@ class SQLTrade(Base):
     fee_currency = Column(String, nullable=True)
     fee_cost = Column(Float, nullable=True)
     fee_rate = Column(Float, nullable=True)
+
+class SQLOrder(Base):
+    __tablename__ = 'OpenOrders'
+    exchange_name = Column(String, primary_key=True)
+    account_name = Column(String, primary_key=True)
+    id = Column(String, primary_key=True)
+    connector = Column(String, primary_key=True)
+    source = Column(String, primary_key=True)
+    strategy = Column(String, primary_key=True)
+    account_name = Column(String, primary_key=True)
+    clientOrderId = Column(String, nullable=True)
+    datetime = Column(String)
+    timestamp = Column(Integer)
+    status = Column(String)
+    symbol = Column(String)
+    type = Column(String)
+    timeInForce = Column(String, nullable=True)
+    side = Column(String)
+    price = Column(Float)
+    amount = Column(Float)
+    filled = Column(Float)
+    remaining = Column(Float)
+    cost = Column(Float)
+    postOnly = Column(Boolean, nullable=True)
+    fee = Column(String, nullable=True)
+    average = Column(Float, nullable=True)
+    stopPrice = Column(Float, nullable=True)
+    trades = Column(String, nullable=True)
+    fees = Column(String, nullable=True)
+    lastTradeTimestamp = Column(Integer, nullable=True)
+
+    def __repr__(self):
+        return f"SQLOpenOrder({self.__dict__})"
