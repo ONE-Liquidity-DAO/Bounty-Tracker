@@ -1,0 +1,6 @@
+sqlalchemy
+pandas
+ccxt
+pyyaml
+coloredlogs
+.

@@ -1,0 +1,3 @@
+-- SQLite
+SELECT *
+FROM Trades
