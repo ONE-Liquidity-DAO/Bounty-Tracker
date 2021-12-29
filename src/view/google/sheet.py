@@ -6,7 +6,7 @@ from src.utils import load_yml
 from src.constants import (
     DB_TYPE, DB_LOCATION, SQL_FOLDER, GOOGLE_LOGIN_LOCATION,
     GOOGLE_WORKSHEET_NAME, GOOGLE_BALANCES_NAME, CONFIG_LOCATION,
-    GOOGLE_TRADES_NAME)
+    GOOGLE_TRADES_NAME, GOOGLE_SUMMARY_NAME)
 import logging
 from src.logger import setup_logging
 setup_logging()
@@ -35,6 +35,9 @@ class DBQuery:
         sql_query = self.load_sql('query_trades')
         return pd.read_sql_query(sql_query, self.connector)
 
+    def query_sql(self, sql_query: str) -> pd.DataFrame:
+        return pd.read_sql_query(sql_query, self.connector)
+
 class Sheet:
     def __init__(self,
                  db_type=DB_TYPE,
@@ -44,6 +47,7 @@ class Sheet:
                  sheet_name=GOOGLE_WORKSHEET_NAME,
                  balances_sheet_name=GOOGLE_BALANCES_NAME,
                  trades_sheet_name=GOOGLE_TRADES_NAME,
+                 summary_sheet_name=GOOGLE_SUMMARY_NAME,
                  config=load_yml(CONFIG_LOCATION)['google']):
 
         logger.info(f'loading {sheet_name} in google')
@@ -54,6 +58,7 @@ class Sheet:
             db_type=db_type, db_location=db_location, sql_folder=sql_folder)
         self._balances_ws = self._ws.worksheet(balances_sheet_name)
         self._trades_ws = self._ws.worksheet(trades_sheet_name)
+        self._summary_ws = self._ws.worksheet(summary_sheet_name)
         self._config = config
         self._update_interval = config['update_interval']
 
@@ -80,11 +85,42 @@ class Sheet:
         self.set_sheet_with_df(self._trades_ws, df)
         logger.info('sync trades done')
 
+    def sync_profits(self):
+        logger.info('sync profit')
+        tickers = self._query.query_sql('SELECT * FROM Tickers')
+        tickers = tickers[['symbol', 'bid', 'ask']]
+        tickers['mid'] = (tickers['bid'] + tickers['ask'])/2
+        usd = {'symbol': 'USDT/USDT','bid':1,'ask':1,'mid':1}
+        tickers = tickers.append(usd, ignore_index=True)
+        df = self._query.query_latest_balance()
+        df['symbol']=df['asset']+'/USDT'
+        df = df.merge(tickers, on='symbol', how='left')
+        df['total_usd'] = df['mid'] * df['total']
+        df2=df[['account_name','total_usd']]
+        df3=df2.groupby(['account_name']).sum()
+        df3['starting'] = 5000
+        df3['profit'] = df3['total_usd'] - df3['starting']
+        
+        trades_df = self._query.query_my_trades()
+        
+        trades_df[['base','quote']]=trades_df.symbol.str.split('/',expand=True)
+        trades = trades_df[trades_df['base']=='SAND'].groupby(['account_name']).sum().reset_index()
+        df4=df3.merge(trades[['account_name', 'amount']], on='account_name', how='left').fillna(0)
+        df4=df4.rename(columns={'amount': 'trade_amount_in_asset'})
+        df4=df4.set_index(['account_name', 'starting']).reset_index()
+        self.set_sheet_with_df(self._summary_ws, df4)
+
+    
+    def get_price(self, symbol):
+        if symbol == 'USDT':
+            return 1
+        
     async def loop(self):
         while True:
             try:
-                self.sync_balances()
-                self.sync_trades()
+                #self.sync_balances()
+                #self.sync_trades()
+                self.sync_profits()
                 logger.info(f'sleep for {self._config["update_interval"]} seconds')
                 
             except Exception as e:

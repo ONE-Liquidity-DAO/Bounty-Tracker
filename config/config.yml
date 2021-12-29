@@ -1,7 +1,5 @@
 google:
   update_interval: 600
-price:
-  okex: ['SAND', 'USDT', 'MANA', 'SUSHI']
 
 
   

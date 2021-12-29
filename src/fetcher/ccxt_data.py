@@ -1,13 +1,13 @@
 # define inputs
 from dataclasses import dataclass
 from typing import Optional
-from src.database.orm_data import SQLBalance, SQLOrder, SQLTrade
+from src.database.orm_data import SQLBalance, SQLOrder, SQLTicker, SQLTrade
 import logging
 
 logger = logging.getLogger(__name__)
 
 
-#TODO: Possible refactor class
+# TODO: Possible refactor class
 
 @dataclass
 class CCXTOrder:
@@ -47,7 +47,7 @@ class CCXTOrder:
         self_dict = {
             k: v
             for k, v in self.__dict__.items()
-            if "__" not in k 
+            if "__" not in k
             and k not in ["info", "current_page", "endTime", "before", "after"]
         }
 
@@ -121,6 +121,7 @@ class CCXTTrade:
         sql_dict["exchange_name"] = exchange_name
         return SQLTrade(**sql_dict)
 
+
 @dataclass
 class CCXTBalance:
     timestamp: int
@@ -129,12 +130,12 @@ class CCXTBalance:
     free: dict
     used: dict
     total: dict
-    
+
     def to_sql_dict(self):
         self_dict = {
             k: v
             for k, v in self.__dict__.items()
-            if "__" not in k 
+            if "__" not in k
             and k not in ["info", "current_page", "endTime", "before", "after"]
         }
         return self_dict
@@ -144,7 +145,8 @@ class CCXTBalance:
         sql_dict["exchange_name"] = exchange_name
         sql_dict["account_name"] = account_name
         return SQLBalance(**sql_dict)
-    
+
+
 @dataclass
 class CCXTBalances:
     info: dict
@@ -153,7 +155,7 @@ class CCXTBalances:
     free: dict
     used: dict
     total: dict
-    
+
     def __init__(self, data):
         self.info = data.get('info')
         self.timestamp = data.get('timestamp')
@@ -161,7 +163,7 @@ class CCXTBalances:
         self.free = data.get('free')
         self.used = data.get('used')
         self.total = data.get('total')
-    
+
     def get_balance_row(self):
         ccxt_balances = []
         for asset in self.total:
@@ -169,9 +171,9 @@ class CCXTBalances:
                 timestamp=self.timestamp,
                 datetime=self.datetime,
                 asset=asset,
-                free=self.free.get(asset,0),
-                used=self.used.get(asset,0),
-                total=self.total.get(asset,0)
+                free=self.free.get(asset, 0),
+                used=self.used.get(asset, 0),
+                total=self.total.get(asset, 0)
             )
             ccxt_balances.append(ccxt_balance)
         return ccxt_balances
@@ -180,3 +182,40 @@ class CCXTBalances:
         ccxt_balances = self.get_balance_row()
         return [balance.to_orm_class(exchange_name, account_name)
                 for balance in ccxt_balances]
+
+@dataclass
+class CCXTTicker:
+    symbol:        str
+    info:          dict
+    timestamp:     int
+    datetime:      str
+    high:          float
+    low:           float
+    bid:           float
+    bidVolume:     float
+    ask:           float
+    askVolume:     float
+    vwap:          float
+    open:          float
+    close:         float
+    last:          float
+    previousClose: float
+    change:        float
+    percentage:    float
+    average:       float
+    baseVolume:    float
+    quoteVolume:   float
+
+    def to_sql_dict(self):
+        self_dict = {
+            k: v
+            for k, v in self.__dict__.items()
+            if "__" not in k
+            and k not in ["info", "current_page", "endTime", "before", "after"]
+        }
+        return self_dict
+
+    def to_orm_class(self, exchange_name):
+        sql_dict = self.to_sql_dict()
+        sql_dict["exchange_name"] = exchange_name
+        return SQLTicker(**sql_dict)

@@ -68,3 +68,26 @@ class SQLOrder(Base):
 
     def __repr__(self):
         return f"SQLOpenOrder({self.__dict__})"
+
+class SQLTicker(Base):
+    __tablename__ = 'Tickers'
+    exchange_name = Column(String, primary_key=True)
+    symbol = Column(String, primary_key=True)
+    timestamp = Column(Integer)
+    datetime = Column(String)
+    high          = Column(Float)
+    low           = Column(Float)
+    bid           = Column(Float)
+    bidVolume     = Column(Float)
+    ask           = Column(Float)
+    askVolume     = Column(Float)
+    vwap          = Column(Float)
+    open          = Column(Float)
+    close         = Column(Float)
+    last          = Column(Float)
+    previousClose = Column(Float)
+    change        = Column(Float)
+    percentage    = Column(Float)
+    average       = Column(Float)
+    baseVolume    = Column(Float)
+    quoteVolume   = Column(Float)

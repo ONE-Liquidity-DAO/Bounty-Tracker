@@ -1,4 +1,4 @@
-from src.fetcher.ccxt_data import CCXTBalance, CCXTBalances, CCXTOrder, CCXTTrade
+from src.fetcher.ccxt_data import CCXTBalance, CCXTBalances, CCXTOrder, CCXTTicker, CCXTTrade
 from src.fetcher.create_exchange_classes import ExchangeClass
 from src.fetcher.create_bounty_info import BountyInfo
 from src.database.database import DataBase
@@ -20,20 +20,18 @@ class Fetcher:
         exchange_classes: list[ExchangeClass],
         bounty_infos: list[BountyInfo],
         database: DataBase,
-        config: dict,
         # queue: asyncio.Queue,
     ) -> None:
 
         self._exchange_classes = exchange_classes
         self._bounty_infos = bounty_infos
         self._database = database
-        self._config = config
         # self._queue = queue
 
     def commit_task_list_to_sql(self, result):
         self._database.commit_task_list_to_sql(result)
 
-    
+
     async def fetch_balance(self, exchange_class: ExchangeClass):
         # update all balance to latest based on api every interval
         exchange = exchange_class.exchange
@@ -169,16 +167,32 @@ class Fetcher:
             logger.info("initiated fetching")
             methods = [Methods.FETCH_OKEX_TRADES, Methods.FETCH_BALANCES]
             tasks = []
+            exchange_names = []
             for exchange_class in self._exchange_classes:
                 await exchange_class.exchange.load_markets()
                 for bounty_info in self._bounty_infos:
                     for method in methods:
                         tasks.append(
                             self.loop(exchange_class, bounty_info, method))
+                if exchange_class.exchange_name in exchange_names:
+                    continue
+                tasks.append(
+                    self.fetch_tickers(exchange_class)
+                )
+                exchange_names.append(exchange_class.exchange_name)
             return await asyncio.gather(*tasks)
 
         except Exception as exc:
             logger.exception(exc, exc_info=True)
+
+    async def fetch_tickers(self, exchange_class: ExchangeClass):
+        tickers = await exchange_class.exchange.fetch_tickers()
+        orm_tickers = []
+        for ticker in tickers.values():
+            ccxt_ticker = CCXTTicker(**ticker)
+            orm_ticker = ccxt_ticker.to_orm_class(exchange_class.exchange_name)
+            orm_tickers.append(orm_ticker)
+        self._database.commit_task_list_to_sql(orm_tickers)
 
     async def start(self):
         while True:
