@@ -1,4 +1,4 @@
-from src.fetcher.ccxt_data import CCXTOrder, CCXTTrade
+from src.fetcher.ccxt_data import CCXTBalance, CCXTBalances, CCXTOrder, CCXTTrade
 from src.fetcher.create_exchange_classes import ExchangeClass
 from src.fetcher.create_bounty_info import BountyInfo
 from src.database.database import DataBase
@@ -6,9 +6,13 @@ import ccxt.async_support as ccxt
 import logging
 import asyncio
 import pandas as pd
-
+from enum import Enum, auto
 logger = logging.getLogger(__name__)
 
+class Methods(Enum):
+    FETCH_OKEX_TRADES = auto()
+    FETCH_OKEX_ORDERS = auto()
+    FETCH_BALANCES = auto()
 
 class Fetcher:
     def __init__(
@@ -16,24 +20,41 @@ class Fetcher:
         exchange_classes: list[ExchangeClass],
         bounty_infos: list[BountyInfo],
         database: DataBase,
+        config: dict,
         # queue: asyncio.Queue,
     ) -> None:
 
         self._exchange_classes = exchange_classes
         self._bounty_infos = bounty_infos
         self._database = database
+        self._config = config
         # self._queue = queue
 
     def commit_task_list_to_sql(self, result):
         self._database.commit_task_list_to_sql(result)
 
-
+    
+    async def fetch_balance(self, exchange_class: ExchangeClass):
+        # update all balance to latest based on api every interval
+        exchange = exchange_class.exchange
+        balances = await exchange.fetch_balance()
+        logger.debug(f'{balances}')
+        if balances.get('timestamp') is None:
+            balances['timestamp'] = exchange.milliseconds()
+        ccxt_balances = CCXTBalances(balances)
+        account_name = exchange_class.account_name
+        exchange_name = exchange_class.exchange_name
+        orm_balance_list = ccxt_balances.get_balance_orm_list(
+                    exchange_name=exchange_name, account_name=account_name
+                )
+        self._database.commit_task_list_to_sql(orm_balance_list)
+        
     async def fetch_my_okex_orders(self,
                                   exchange_class: ExchangeClass,
                                   symbol: str,
                                   since: int,
                                   params: dict
-    ):
+        ):
             print('fetching')
             orders = await exchange_class.exchange.fetch_closed_orders(
                 symbol, since=since, limit=None, params=params
@@ -66,7 +87,7 @@ class Fetcher:
                                   symbol: str,
                                   since: int,
                                   params: dict
-    ):
+        ):
             trades = await exchange_class.exchange.fetch_my_trades(
                 symbol, since=since, limit=None, params=params
             )
@@ -94,7 +115,7 @@ class Fetcher:
 
     async def fetch_method_with_okex_pagination(
         self, method, exchange_class: ExchangeClass, bounty_info: BountyInfo
-    ):
+        ):
         # okex requires a different pagination method which is not unified under ccxt
         symbol = bounty_info.symbol
         since = bounty_info.since
@@ -106,11 +127,11 @@ class Fetcher:
                 params = {}
                 if earliest_id:
                     params = {'after': earliest_id}
-                if method == 'fetch_okex_trades':
+                if method == Methods.FETCH_OKEX_TRADES:
                     resp_list, earliest_id, to = await self.fetch_my_okex_trades(
                         exchange_class, symbol, since=since, params=params
                     )
-                if method == 'fetch_okex_orders':
+                if method == Methods.FETCH_OKEX_ORDERS:
                     resp_list, earliest_id, to = await self.fetch_my_okex_orders(
                         exchange_class, symbol, since=since, params=params
                     )
@@ -135,8 +156,10 @@ class Fetcher:
         self, exchange_class: ExchangeClass, bounty_info: BountyInfo, method: str
     ):
         try:
-            if 'okex' in method:
+            if method == Methods.FETCH_OKEX_TRADES or method== Methods.FETCH_OKEX_ORDERS:
                 await self.fetch_method_with_okex_pagination(method, exchange_class, bounty_info)
+            if method == Methods.FETCH_BALANCES:
+                await self.fetch_balance(exchange_class)
         except Exception as exc:
             logger.exception(exc, exc_info=True)
 
@@ -144,7 +167,7 @@ class Fetcher:
         tasks = []
         try:
             logger.info("initiated fetching")
-            methods = ["fetch_okex_trades", "fetch_okex_orders"]
+            methods = [Methods.FETCH_OKEX_TRADES, Methods.FETCH_BALANCES]
             tasks = []
             for exchange_class in self._exchange_classes:
                 await exchange_class.exchange.load_markets()
