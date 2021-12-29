@@ -6,7 +6,7 @@ from src.database.database import DataBase
 import asyncio
 from src.logger import setup_logging
 from src.constants import (
-    CREDENTIALS_LOCATION, CONFIG_LOCATION, DB_TYPE, DB_LOCATION,
+    CREDENTIALS_LOCATION, BOUNTY_INFO_LOCATION, DB_TYPE, DB_LOCATION,
     LOG_LEVEL, FILE_LOG_LEVEL, LOG_FILENAME)
 
 
@@ -47,6 +47,6 @@ class Tracker:
 
 if __name__ == "__main__":
     exchange_classes = create_exchange_classes(cred_location=CREDENTIALS_LOCATION)
-    bounty_infos = create_bounty_info(config_location=CONFIG_LOCATION)
+    bounty_infos = create_bounty_info(config_location=BOUNTY_INFO_LOCATION)
     tracker = Tracker(exchange_classes, bounty_infos)
     asyncio.run(tracker.start())

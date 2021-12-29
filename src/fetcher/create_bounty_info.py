@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from src.constants import CONFIG_LOCATION
+from src.constants import BOUNTY_INFO_LOCATION
 from src.utils import load_yml
 import logging
 logger = logging.getLogger(__name__)
@@ -11,8 +11,7 @@ class BountyInfo:
     since: int
     to: int
 
-
-def create_bounty_info(config_location=CONFIG_LOCATION) -> list[BountyInfo]:
+def create_bounty_info(config_location=BOUNTY_INFO_LOCATION) -> list[BountyInfo]:
     bounty_infos = load_yml(config_location)
     bounty_list = []
     

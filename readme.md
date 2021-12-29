@@ -15,9 +15,9 @@ run pip install -r requirements.txt
 
 set up bounty info and accounts
 
-refer to config.yml for adding bounty info
+refer to bounty_info.yml for adding bounty info
 
-https://github.com/leastchaos/Tracker/blob/main/config/config.yml
+https://github.com/leastchaos/Tracker/blob/main/config/bounty_info.yml
 
 refer to app_list_template.yml for adding account
 

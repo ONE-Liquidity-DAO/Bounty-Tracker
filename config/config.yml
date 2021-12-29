@@ -1,5 +1,7 @@
-bounty_1:
-  exchange: 'okex'
-  symbol: 'SAND/USDT'
-  since: 0
-  to: 1640144229000
+google:
+  update_interval: 600
+price:
+  okex: ['SAND', 'USDT', 'MANA', 'SUSHI']
+
+
+  

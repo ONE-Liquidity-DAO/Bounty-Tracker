@@ -1,40 +1,14 @@
 # define inputs
 from dataclasses import dataclass
 from typing import Optional
-from src.database.orm_data import SQLOrder, SQLTrade
+from src.database.orm_data import SQLBalance, SQLOrder, SQLTrade
 import logging
 
 logger = logging.getLogger(__name__)
 
 
-# loading into this data class may be something like
-'''
-{
-    'id':                '12345-67890:09876/54321', // string
-    'clientOrderId':     'abcdef-ghijklmnop-qrstuvwxyz', // a user-defined clientOrderId, if any
-    'datetime':          '2017-08-17 12:42:48.000', // ISO8601 datetime of 'timestamp' with milliseconds
-    'timestamp':          1502962946216, // order placing/opening Unix timestamp in milliseconds
-    'lastTradeTimestamp': 1502962956216, // Unix timestamp of the most recent trade on this order
-    'status':      'open',        // 'open', 'closed', 'canceled', 'expired'
-    'symbol':      'ETH/BTC',     // symbol
-    'type':        'limit',       // 'market', 'limit'
-    'timeInForce': 'GTC',         // 'GTC', 'IOC', 'FOK', 'PO'
-    'side':        'buy',         // 'buy', 'sell'
-    'price':        0.06917684,   // float price in quote currency (may be empty for market orders)
-    'average':      0.06917684,   // float average filling price
-    'amount':       1.5,          // ordered amount of base currency
-    'filled':       1.1,          // filled amount of base currency
-    'remaining':    0.4,          // remaining amount to fill
-    'cost':         0.076094524,  // 'filled' * 'price' (filling price used where available)
-    'trades':     [ ... ],        // a list of order trades/executions
-    'fee': {                      // fee info, if available
-        'currency': 'BTC',        // which currency the fee is (usually quote)
-        'cost': 0.0009,           // the fee amount in that currency
-        'rate': 0.002,            // the fee rate (if available)
-    },
-    'info': { ... },              // the original unparsed order structure as is
-}
-'''
+#TODO: Possible refactor class
+
 @dataclass
 class CCXTOrder:
     id: str
@@ -146,3 +120,63 @@ class CCXTTrade:
         sql_dict["account_name"] = account_name
         sql_dict["exchange_name"] = exchange_name
         return SQLTrade(**sql_dict)
+
+@dataclass
+class CCXTBalance:
+    timestamp: int
+    datetime: str
+    asset: str
+    free: dict
+    used: dict
+    total: dict
+    
+    def to_sql_dict(self):
+        self_dict = {
+            k: v
+            for k, v in self.__dict__.items()
+            if "__" not in k 
+            and k not in ["info", "current_page", "endTime", "before", "after"]
+        }
+        return self_dict
+
+    def to_orm_class(self, exchange_name, account_name):
+        sql_dict = self.to_sql_dict()
+        sql_dict["exchange_name"] = exchange_name
+        sql_dict["account_name"] = account_name
+        return SQLBalance(**sql_dict)
+    
+@dataclass
+class CCXTBalances:
+    info: dict
+    timestamp: int
+    datetime: str
+    free: dict
+    used: dict
+    total: dict
+    
+    def __init__(self, data):
+        self.info = data.get('info')
+        self.timestamp = data.get('timestamp')
+        self.datetime = data.get('datetime')
+        self.free = data.get('free')
+        self.used = data.get('used')
+        self.total = data.get('total')
+    
+    def get_balance_row(self):
+        ccxt_balances = []
+        for asset in self.total:
+            ccxt_balance = CCXTBalance(
+                timestamp=self.timestamp,
+                datetime=self.datetime,
+                asset=asset,
+                free=self.free.get(asset,0),
+                used=self.used.get(asset,0),
+                total=self.total.get(asset,0)
+            )
+            ccxt_balances.append(ccxt_balance)
+        return ccxt_balances
+
+    def get_balance_orm_list(self, exchange_name, account_name):
+        ccxt_balances = self.get_balance_row()
+        return [balance.to_orm_class(exchange_name, account_name)
+                for balance in ccxt_balances]

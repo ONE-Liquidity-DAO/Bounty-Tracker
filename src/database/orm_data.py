@@ -4,6 +4,18 @@ from sqlalchemy.orm import registry
 
 Base = declarative_base()
 
+class SQLBalance(Base):
+    __tablename__ = 'Balances'
+    timestamp = Column(Integer, primary_key=True)
+    account_name = Column(String, primary_key=True)
+    exchange_name = Column(String, primary_key=True)
+    datetime = Column(String)
+    asset = Column(String, primary_key=True)
+    total = Column(Float)
+    free = Column(Float)
+    used = Column(Float)
+    def __repr__(self):
+        return f"SQLBalance({self.__dict__})"
 
 class SQLTrade(Base):
     __tablename__ = "Trades"
