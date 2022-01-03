@@ -21,6 +21,7 @@ class AccountInfo:
 
 
 def get_account_infos(api_keys=load_yml(CREDENTIALS_LOCATION)) -> list[AccountInfo]:
+    '''get all account infos from api keys'''
     account_infos = []
     for account_name, details in api_keys.items():
         details.update({"account_name": account_name})
@@ -37,6 +38,7 @@ class ExchangeClass:
 
 
 def create_exchange_classes(cred_location=CREDENTIALS_LOCATION) -> list[ExchangeClass]:
+    '''create a list of exchange class from credentials'''
     account_infos = get_account_infos(api_keys=load_yml(cred_location))
     exchange_classes = []
     for account_info in account_infos:
@@ -58,7 +60,8 @@ def create_exchange_classes(cred_location=CREDENTIALS_LOCATION) -> list[Exchange
         exchange_classes.append(exchange_class)
     return exchange_classes
 
-async def main():
+async def main() -> None:
+    '''main function to run this module, mainly for testing purpose'''
     exchange_classes = create_exchange_classes()
     for exchange_info in exchange_classes:
         await exchange_info.exchange.load_markets()

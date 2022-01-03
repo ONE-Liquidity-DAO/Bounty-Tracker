@@ -86,6 +86,7 @@ class Sheet:
         logger.info('sync trades done')
 
     def sync_profits(self):
+        # TODO: rough implementation for now
         logger.info('sync profit')
         tickers = self._query.query_sql('SELECT * FROM Tickers')
         tickers = tickers[['symbol', 'bid', 'ask']]
@@ -98,19 +99,19 @@ class Sheet:
         df['total_usd'] = df['mid'] * df['total']
         df2=df[['account_name','total_usd']]
         df3=df2.groupby(['account_name']).sum()
-        df3['starting'] = 5000
+        df3['starting'] = 2500
         df3['profit'] = df3['total_usd'] - df3['starting']
+        df3=df3.reset_index().set_index(['account_name', 'starting']).reset_index()
         
         trades_df = self._query.query_my_trades()
+        if len(trades_df>0):
+            trades_df[['base','quote']]=trades_df.symbol.str.split('/',expand=True)
+            trades = trades_df[trades_df['base']=='SAND'].groupby(['account_name']).sum().reset_index()
+            df3=df3.merge(trades[['account_name', 'amount']], on='account_name', how='left').fillna(0)
+            df3=df3.rename(columns={'amount': 'trade_amount_in_asset'})
         
-        trades_df[['base','quote']]=trades_df.symbol.str.split('/',expand=True)
-        trades = trades_df[trades_df['base']=='SAND'].groupby(['account_name']).sum().reset_index()
-        df4=df3.merge(trades[['account_name', 'amount']], on='account_name', how='left').fillna(0)
-        df4=df4.rename(columns={'amount': 'trade_amount_in_asset'})
-        df4=df4.set_index(['account_name', 'starting']).reset_index()
-        self.set_sheet_with_df(self._summary_ws, df4)
+        self.set_sheet_with_df(self._summary_ws, df3)
 
-    
     def get_price(self, symbol):
         if symbol == 'USDT':
             return 1
@@ -118,8 +119,8 @@ class Sheet:
     async def loop(self):
         while True:
             try:
-                #self.sync_balances()
-                #self.sync_trades()
+                self.sync_balances()
+                self.sync_trades()
                 self.sync_profits()
                 logger.info(f'sleep for {self._config["update_interval"]} seconds')
                 

@@ -12,6 +12,7 @@ class BountyInfo:
     to: int
 
 def create_bounty_info(config_location=BOUNTY_INFO_LOCATION) -> list[BountyInfo]:
+    '''create a list of bounty info from config file'''
     bounty_infos = load_yml(config_location)
     bounty_list = []
     

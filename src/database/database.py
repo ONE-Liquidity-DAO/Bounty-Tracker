@@ -1,4 +1,5 @@
 
+from typing import Any
 import asyncio
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
@@ -8,9 +9,9 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-
 class DataBase:
-    def __init__(self, db_type=DB_TYPE, db_location=DB_LOCATION):
+    def __init__(self, db_type: str = DB_TYPE, db_location: str = DB_LOCATION):
+        '''initialize database parameters'''
         self.engine = create_engine(
             f"{db_type}:///{db_location}", echo=False, future=True)
         self.Base = Base
@@ -18,28 +19,32 @@ class DataBase:
         # or load the table if it exists
         self.Base.metadata.create_all(self.engine)
 
-    def commit_task_to_sql(self, task):
+    def commit_task_to_sql(self, task: Base) -> None:
+        '''commit task to database'''
         with Session(self.engine) as session:
             session.merge(task)
             session.commit()
         logger.debug(f'commited: {task}')
 
-    def commit_task_list_to_sql(self, task_list):
+    def commit_task_list_to_sql(self, task_list: list[Base]) -> None:
+        '''commit list of task to database'''
         with Session(self.engine) as session:
             for task in task_list:
                 session.merge(task)
             session.commit()
         logger.debug(f'commited: {task_list}')
-        
-    def replace_table_with_task(self, task, table):
+
+    def replace_table_with_task(self, task: Base, table: str) -> None:
+        '''delete table then create a table in place of it with the task'''
         with Session(self.engine) as session:
             session.query(table).delete()
             for order in task:
                 session.merge(order)
             session.commit()
         logger.debug(f'commited: {task}')
-        
-    def process_task(self, task):
+
+    def process_task(self, task: Any) -> None:
+        '''process task'''
         if type(task) == list:
             if len(task) == 0:
                 return 'no task in list'

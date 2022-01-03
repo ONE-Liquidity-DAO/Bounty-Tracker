@@ -39,11 +39,13 @@ class CCXTOrder:
     before: Optional[str] = None  # non-unified params
     after: Optional[str] = None  # non-unified params
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
+        '''set timestamp to last trade timestamp if there is not timestamp'''
         if self.timestamp is None:
             self.timestamp = self.lastTradeTimestamp
 
-    def to_sql_dict(self):
+    def to_sql_dict(self) -> dict:
+        '''convert data class to dict format'''
         self_dict = {
             k: v
             for k, v in self.__dict__.items()
@@ -59,7 +61,8 @@ class CCXTOrder:
 
         return self_dict
 
-    def to_orm_class(self, exchange_name, account_name):
+    def to_orm_class(self, exchange_name, account_name) -> SQLOrder:
+        '''convert data class to orm class'''
         sql_dict = self.to_sql_dict()
         sql_dict["exchange_name"] = exchange_name
         sql_dict["account_name"] = account_name
@@ -90,7 +93,8 @@ class CCXTTrade:
     before: Optional[str] = None  # non-unified params
     after: Optional[str] = None  # non-unified params
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
+        '''expand fees into attributes'''
         if self.fee:
             self.fee_currency = self.fee.get("currency")
             self.fee_cost = self.fee.get("cost")
@@ -100,8 +104,8 @@ class CCXTTrade:
             logger.warning("more than one fees")
             return
 
-    def to_sql_dict(self):
-        # get all attributes except those containing __ and info
+    def to_sql_dict(self) -> dict:
+        '''get all attributes except those containing __ and info into dict'''
         self_dict = {
             k: v
             for k, v in self.__dict__.items()
@@ -115,7 +119,8 @@ class CCXTTrade:
             self_dict[key] = str(self_dict[key])
         return self_dict
 
-    def to_orm_class(self, account_name, exchange_name):
+    def to_orm_class(self, account_name, exchange_name) -> SQLTrade:
+        '''convert data class to SQL Trade'''
         sql_dict = self.to_sql_dict()
         sql_dict["account_name"] = account_name
         sql_dict["exchange_name"] = exchange_name
@@ -131,7 +136,8 @@ class CCXTBalance:
     used: dict
     total: dict
 
-    def to_sql_dict(self):
+    def to_sql_dict(self) -> dict:
+        '''get all attributes except those containing __ and unused info into dict'''
         self_dict = {
             k: v
             for k, v in self.__dict__.items()
@@ -140,7 +146,8 @@ class CCXTBalance:
         }
         return self_dict
 
-    def to_orm_class(self, exchange_name, account_name):
+    def to_orm_class(self, exchange_name, account_name) -> SQLBalance:
+        '''convert data class to SQLBalance'''
         sql_dict = self.to_sql_dict()
         sql_dict["exchange_name"] = exchange_name
         sql_dict["account_name"] = account_name
@@ -156,7 +163,8 @@ class CCXTBalances:
     used: dict
     total: dict
 
-    def __init__(self, data):
+    def __init__(self, data) -> None:
+        '''convert raw balance data from ccxt into dataclass'''
         self.info = data.get('info')
         self.timestamp = data.get('timestamp')
         self.datetime = data.get('datetime')
@@ -164,7 +172,8 @@ class CCXTBalances:
         self.used = data.get('used')
         self.total = data.get('total')
 
-    def get_balance_row(self):
+    def get_balance_row(self) -> list[CCXTBalance]:
+        '''convert each asset into individual CCXT Balance'''
         ccxt_balances = []
         for asset in self.total:
             ccxt_balance = CCXTBalance(
@@ -178,7 +187,8 @@ class CCXTBalances:
             ccxt_balances.append(ccxt_balance)
         return ccxt_balances
 
-    def get_balance_orm_list(self, exchange_name, account_name):
+    def get_balance_orm_list(self, exchange_name, account_name) -> list[SQLBalance]:
+        '''convert all CCXTBalance to SQLBalance'''
         ccxt_balances = self.get_balance_row()
         return [balance.to_orm_class(exchange_name, account_name)
                 for balance in ccxt_balances]
@@ -206,7 +216,8 @@ class CCXTTicker:
     baseVolume:    float
     quoteVolume:   float
 
-    def to_sql_dict(self):
+    def to_sql_dict(self) -> dict:
+        '''get all attributes except those containing __ and unused info into dict'''
         self_dict = {
             k: v
             for k, v in self.__dict__.items()
@@ -216,6 +227,7 @@ class CCXTTicker:
         return self_dict
 
     def to_orm_class(self, exchange_name):
+        '''convert data class to SQLTicker'''
         sql_dict = self.to_sql_dict()
         sql_dict["exchange_name"] = exchange_name
         return SQLTicker(**sql_dict)
