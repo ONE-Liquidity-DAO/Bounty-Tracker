@@ -1,3 +1,5 @@
+from typing import Tuple
+from database.orm_data import SQLOrder, SQLTrade
 from src.fetcher.ccxt_data import CCXTBalance, CCXTBalances, CCXTOrder, CCXTTicker, CCXTTrade
 from src.fetcher.create_exchange_classes import ExchangeClass
 from src.fetcher.create_bounty_info import BountyInfo
@@ -28,12 +30,13 @@ class Fetcher:
         self._database = database
         # self._queue = queue
 
-    def commit_task_list_to_sql(self, result):
+    def commit_task_list_to_sql(self, result) -> None:
+        '''helper function to commit task list to database'''
         self._database.commit_task_list_to_sql(result)
 
 
-    async def fetch_balance(self, exchange_class: ExchangeClass):
-        # update all balance to latest based on api every interval
+    async def fetch_balance(self, exchange_class: ExchangeClass) -> None:
+        '''update all balance to latest based on api every interval'''
         exchange = exchange_class.exchange
         balances = await exchange.fetch_balance()
         logger.debug(f'{balances}')
@@ -52,7 +55,8 @@ class Fetcher:
                                   symbol: str,
                                   since: int,
                                   params: dict
-        ):
+        ) -> Tuple[SQLOrder, str, int]:
+            '''fetch okex orders '''
             print('fetching')
             orders = await exchange_class.exchange.fetch_closed_orders(
                 symbol, since=since, limit=None, params=params
@@ -85,7 +89,8 @@ class Fetcher:
                                   symbol: str,
                                   since: int,
                                   params: dict
-        ):
+        ) -> Tuple[SQLTrade, str, int]:
+            '''fetch okex trades'''
             trades = await exchange_class.exchange.fetch_my_trades(
                 symbol, since=since, limit=None, params=params
             )
@@ -113,8 +118,11 @@ class Fetcher:
 
     async def fetch_method_with_okex_pagination(
         self, method, exchange_class: ExchangeClass, bounty_info: BountyInfo
-        ):
-        # okex requires a different pagination method which is not unified under ccxt
+        ) -> None:
+        '''
+        okex requires a different pagination method which is not unified under ccxt
+        loops through all pages of okex data and commit them to database
+        '''
         symbol = bounty_info.symbol
         since = bounty_info.since
         to = bounty_info.to
