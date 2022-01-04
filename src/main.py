@@ -1,5 +1,5 @@
 from src.fetcher.fetcher import Fetcher
-from src.fetcher.create_exchange_classes  import ExchangeClass, create_exchange_classes
+from src.fetcher.create_exchange_classes  import ExchangeClass, create_exchange_classes, get_account_infos
 from src.fetcher.create_bounty_info import BountyInfo, create_bounty_info
 
 from src.database.database import DataBase
@@ -46,7 +46,8 @@ class Tracker:
 
 
 if __name__ == "__main__":
-    exchange_classes = create_exchange_classes(cred_location=CREDENTIALS_LOCATION)
+    account_infos = get_account_infos()
+    exchange_classes = create_exchange_classes(account_infos)
     bounty_infos = create_bounty_info(config_location=BOUNTY_INFO_LOCATION)
     tracker = Tracker(exchange_classes, bounty_infos)
     asyncio.run(tracker.start())

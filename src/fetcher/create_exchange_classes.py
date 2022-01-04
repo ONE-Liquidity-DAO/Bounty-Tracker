@@ -9,6 +9,7 @@ from src.constants import CREDENTIALS_LOCATION
 
 logger = logging.getLogger(__name__)
 
+
 @dataclass
 class AccountInfo:
     exchange_name: str
@@ -16,11 +17,11 @@ class AccountInfo:
     api_key: str
     secret: str
     type: str
-    password:str = None
+    password: str = None
     enableRateLimit: bool = True
 
 
-def get_account_infos(api_keys=load_yml(CREDENTIALS_LOCATION)) -> list[AccountInfo]:
+def get_account_infos(api_keys: dict = load_yml(CREDENTIALS_LOCATION)) -> list[AccountInfo]:
     '''get all account infos from api keys'''
     account_infos = []
     for account_name, details in api_keys.items():
@@ -37,9 +38,8 @@ class ExchangeClass:
     exchange_name: str
 
 
-def create_exchange_classes(cred_location=CREDENTIALS_LOCATION) -> list[ExchangeClass]:
+def create_exchange_classes(account_infos: list[AccountInfo]) -> list[ExchangeClass]:
     '''create a list of exchange class from credentials'''
-    account_infos = get_account_infos(api_keys=load_yml(cred_location))
     exchange_classes = []
     for account_info in account_infos:
         exchange = getattr(ccxt, account_info.exchange_name)(
@@ -60,14 +60,16 @@ def create_exchange_classes(cred_location=CREDENTIALS_LOCATION) -> list[Exchange
         exchange_classes.append(exchange_class)
     return exchange_classes
 
+
 async def main() -> None:
     '''main function to run this module, mainly for testing purpose'''
-    exchange_classes = create_exchange_classes()
+    account_infos = get_account_infos()
+    exchange_classes = create_exchange_classes(account_infos)
     for exchange_info in exchange_classes:
         await exchange_info.exchange.load_markets()
         await exchange_info.exchange.fetch_closed_orders('BTC/USDT')
         await exchange_info.exchange.close()
-    
+
 if __name__ == "__main__":
     import asyncio
     asyncio.run(main())

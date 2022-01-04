@@ -96,11 +96,13 @@ class Sheet:
         df = self._query.query_latest_balance()
         df['symbol']=df['asset']+'/USDT'
         df = df.merge(tickers, on='symbol', how='left')
-        df['total_usd'] = df['mid'] * df['total']
-        df2=df[['account_name','total_usd']]
+        one_price = tickers[tickers.symbol == 'SAND/USDT']['mid'].values[0]
+        print(one_price)
+        df['total_one'] = df['mid'] * df['total'] / one_price
+        df2=df[['account_name','total_one']]
         df3=df2.groupby(['account_name']).sum()
-        df3['starting'] = 2500
-        df3['profit'] = df3['total_usd'] - df3['starting']
+        df3['starting'] = 8008
+        df3['profit'] = df3['total_one'] - df3['starting']
         df3=df3.reset_index().set_index(['account_name', 'starting']).reset_index()
         
         trades_df = self._query.query_my_trades()
