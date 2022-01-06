@@ -94,7 +94,6 @@ class Sheet:
         df['symbol']=df['asset']+'/USDT'
         df = df.merge(tickers, on='symbol', how='left')
         one_price = tickers[tickers.symbol == 'ONE/USDT']['mid'].values[0]
-        print(one_price)
         df['total_one'] = df['mid'] * df['total'] / one_price
         df2=df[['account_name','total_one']]
         df3=df2.groupby(['account_name']).sum()
@@ -103,7 +102,7 @@ class Sheet:
         df3=df3.reset_index().set_index(['account_name', 'starting']).reset_index()
         
         trades_df = self._query.query_my_trades()
-        if len(trades_df>0):
+        if len(trades_df)>0:
             trades_df[['base','quote']]=trades_df.symbol.str.split('/',expand=True)
             trades = trades_df[trades_df['base']=='ONE'].groupby(['account_name']).sum().reset_index()
             df3=df3.merge(trades[['account_name', 'amount']], on='account_name', how='left').fillna(0)

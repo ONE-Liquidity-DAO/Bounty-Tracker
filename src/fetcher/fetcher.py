@@ -166,11 +166,10 @@ class Fetcher:
         except Exception as exc:
             logger.exception(exc, exc_info=True)
 
-    async def fetch_all(self):
+    async def fetch_all(self, methods: list[Methods] = [Methods.FETCH_OKEX_TRADES, Methods.FETCH_BALANCES]):
         tasks = []
         try:
             logger.info("initiated fetching")
-            methods = [Methods.FETCH_BALANCES]
             tasks = []
             exchange_names = []
             for exchange_class in self._exchange_classes:
