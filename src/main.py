@@ -11,7 +11,8 @@ from src.constants import (
     CREDENTIALS_LOCATION, BOUNTY_INFO_LOCATION, DB_TYPE, DB_LOCATION,
     LOG_LEVEL, FILE_LOG_LEVEL, LOG_FILENAME)
 from utils import load_yml
-
+import logging
+logger = logging.getLogger(__name__)
 async def main(
     db_location=DB_LOCATION,
     db_type=DB_TYPE,
@@ -42,11 +43,18 @@ async def main(
     sheet = Sheet(
         
     )
-    await fetcher.fetch_all()
-    
-    await sheet.loop()
-    
+    while True:
+        try:
+            await fetcher.fetch_all()
+            await sheet.loop()
+            await asyncio.sleep(600)
+        except KeyboardInterrupt:
+            break
+        except Exception as e:
+            logger.exception(e, exc_info=True)
+            await asyncio.sleep(600)
+    await fetcher.close_all()
 if __name__ == "__main__":
     asyncio.run(main())
 
-    await fetcher.close_all()
+    
