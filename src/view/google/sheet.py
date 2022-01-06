@@ -86,7 +86,7 @@ class Sheet:
         logger.info('sync trades done')
 
     def sync_profits(self):
-        # TODO: rough implementation for now
+        # TODO: rough implementation for now. to refactor and make this configurable
         logger.info('sync profit')
         tickers = self._query.query_sql('SELECT * FROM Tickers')
         tickers = tickers[['symbol', 'bid', 'ask']]
@@ -96,7 +96,7 @@ class Sheet:
         df = self._query.query_latest_balance()
         df['symbol']=df['asset']+'/USDT'
         df = df.merge(tickers, on='symbol', how='left')
-        one_price = tickers[tickers.symbol == 'SAND/USDT']['mid'].values[0]
+        one_price = tickers[tickers.symbol == 'ONE/USDT']['mid'].values[0]
         print(one_price)
         df['total_one'] = df['mid'] * df['total'] / one_price
         df2=df[['account_name','total_one']]
@@ -108,7 +108,7 @@ class Sheet:
         trades_df = self._query.query_my_trades()
         if len(trades_df>0):
             trades_df[['base','quote']]=trades_df.symbol.str.split('/',expand=True)
-            trades = trades_df[trades_df['base']=='SAND'].groupby(['account_name']).sum().reset_index()
+            trades = trades_df[trades_df['base']=='ONE'].groupby(['account_name']).sum().reset_index()
             df3=df3.merge(trades[['account_name', 'amount']], on='account_name', how='left').fillna(0)
             df3=df3.rename(columns={'amount': 'trade_amount_in_asset'})
         
@@ -125,7 +125,6 @@ class Sheet:
                 self.sync_trades()
                 self.sync_profits()
                 logger.info(f'sleep for {self._config["update_interval"]} seconds')
-                
             except Exception as e:
                 logger.exception(f'{e} retry in 5min')
                 await asyncio.sleep(300)

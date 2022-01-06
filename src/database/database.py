@@ -53,15 +53,3 @@ class DataBase:
                 return 'process SQLTrade'
             raise AttributeError(f'tasks type: {type(task[0])} not found')
         raise AttributeError(f'task type: {type(task)} not found')
-
-    # async def process_queue(self):
-    #     task = await self._queue.get()
-    #     self.process_task(task)
-    #     self._queue.task_done()
-
-    # async def start(self):
-    #     while True:
-    #         try:
-    #             await self.process_queue()
-    #         except Exception as e:
-    #             logger.exception(e, exc_info=True)

@@ -4,8 +4,7 @@ from src.fetcher.create_bounty_info import BountyInfo, create_bounty_info
 
 from src.database.database import DataBase
 import asyncio
-from src.logger import setup_logging, create_exchange_classes, get_account_infos
-from src.fetcher.create_bounty_info import create_bounty_info
+from src.logger import setup_logging
 from view.google.sheet import Sheet
 
 from src.constants import (
@@ -42,8 +41,8 @@ async def main(
     )
     await fetcher.fetch_all()
     await fetcher.close_all()
-    sheet = Sheet()
-    sheet.start()
     
 if __name__ == "__main__":
     asyncio.run(main())
+    sheet = Sheet()
+    sheet.start()

@@ -58,6 +58,7 @@ def create_exchange_classes(account_infos: list[AccountInfo]) -> list[ExchangeCl
             exchange_name=account_info.exchange_name,
         )
         exchange_classes.append(exchange_class)
+    print([exchange_info.account_name for exchange_info in exchange_classes])
     return exchange_classes
 
 

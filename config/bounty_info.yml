@@ -1,5 +1,5 @@
 bounty_1:
   exchange: 'okex'
-  symbol: 'SAND/USDT'
+  symbol: 'ONE/USDT'
   since: 0
-  to: 1640144229000
+  to: 99999999999999999999999999999

@@ -5,7 +5,7 @@ where account_name || timestamp in
 (
     SELECT account_name || MAX(timestamp) as id
     FROM Balances
-    -- only get account with recent updates in the past 1 week
-    WHERE timestamp > strftime('%s', 'now') * 1000 - 7*24*60*60*1000
+    -- only get account with recent updates in the past 1 day
+    WHERE timestamp > strftime('%s', 'now') * 1000 - 1*24*60*60*1000
     GROUP BY account_name
 );

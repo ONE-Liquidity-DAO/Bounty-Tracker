@@ -1,5 +1,5 @@
 from typing import Tuple
-from database.orm_data import SQLOrder, SQLTrade
+from src.database.orm_data import SQLOrder, SQLTrade
 from src.fetcher.ccxt_data import CCXTBalance, CCXTBalances, CCXTOrder, CCXTTicker, CCXTTrade
 from src.fetcher.create_exchange_classes import ExchangeClass
 from src.fetcher.create_bounty_info import BountyInfo
@@ -11,10 +11,12 @@ import pandas as pd
 from enum import Enum, auto
 logger = logging.getLogger(__name__)
 
+
 class Methods(Enum):
     FETCH_OKEX_TRADES = auto()
     FETCH_OKEX_ORDERS = auto()
     FETCH_BALANCES = auto()
+
 
 class Fetcher:
     def __init__(
@@ -22,21 +24,19 @@ class Fetcher:
         exchange_classes: list[ExchangeClass],
         bounty_infos: list[BountyInfo],
         database: DataBase,
-        # queue: asyncio.Queue,
     ) -> None:
 
         self._exchange_classes = exchange_classes
         self._bounty_infos = bounty_infos
         self._database = database
-        # self._queue = queue
 
     def commit_task_list_to_sql(self, result) -> None:
         '''helper function to commit task list to database'''
         self._database.commit_task_list_to_sql(result)
 
-
     async def fetch_balance(self, exchange_class: ExchangeClass) -> None:
         '''update all balance to latest based on api every interval'''
+        logger.debug(exchange_class)
         exchange = exchange_class.exchange
         balances = await exchange.fetch_balance()
         logger.debug(f'{balances}')
@@ -46,79 +46,77 @@ class Fetcher:
         account_name = exchange_class.account_name
         exchange_name = exchange_class.exchange_name
         orm_balance_list = ccxt_balances.get_balance_orm_list(
-                    exchange_name=exchange_name, account_name=account_name
-                )
+            exchange_name=exchange_name, account_name=account_name
+        )
         self._database.commit_task_list_to_sql(orm_balance_list)
-        
+
     async def fetch_my_okex_orders(self,
-                                  exchange_class: ExchangeClass,
-                                  symbol: str,
-                                  since: int,
-                                  params: dict
-        ) -> Tuple[SQLOrder, str, int]:
-            '''fetch okex orders '''
-            print('fetching')
-            orders = await exchange_class.exchange.fetch_closed_orders(
-                symbol, since=since, limit=None, params=params
+                                   exchange_class: ExchangeClass,
+                                   symbol: str,
+                                   since: int,
+                                   params: dict
+                                   ) -> Tuple[SQLOrder, str, int]:
+        '''fetch okex orders '''
+        print('fetching')
+        orders = await exchange_class.exchange.fetch_closed_orders(
+            symbol, since=since, limit=None, params=params
+        )
+        if len(orders) == 0:
+            return [], -1, -1
+        # hacky: picking trade at 0 may skip some orders whose order id are the same
+        # sql table can handle duplicated entry
+        if len(orders) > 1:
+            earliest_order_id = orders[1]['id']
+        else:
+            earliest_order_id = orders[0]['id']
+        to = orders[0]['timestamp']
+        orm_orders = []
+        logger.info(f'fetching {exchange_class}')
+        for order in orders:
+            order['cancel_timestamp'] = int(order['info']['uTime'])
+            ccxt_order = CCXTOrder(**order)
+            account_name = exchange_class.account_name
+            exchange_name = exchange_class.exchange_name
+            orm_order = ccxt_order.to_orm_class(
+                exchange_name=exchange_name, account_name=account_name
             )
-            if len(orders) == 0:
-                return [], -1, -1
-            # hacky: picking trade at 0 may skip some orders whose order id are the same
-            # sql table can handle duplicated entry
-            if len(orders) > 1:
-                earliest_order_id = orders[1]['id']
-            else:
-                earliest_order_id = orders[0]['id']
-            to = orders[0]['timestamp']
-            orm_orders = []
-            logger.info(f'fetching {exchange_class}')
-            for order in orders:
-                order['cancel_timestamp'] = int(order['info']['uTime'])
-                ccxt_order = CCXTOrder(**order)
-                account_name = exchange_class.account_name
-                exchange_name = exchange_class.exchange_name
-                orm_order = ccxt_order.to_orm_class(
-                    exchange_name=exchange_name, account_name=account_name
-                )
-                orm_orders.append(orm_order)
-            # self._queue.put_nowait(orm_trades)
-            return orm_orders, earliest_order_id, to
+            orm_orders.append(orm_order)
+        return orm_orders, earliest_order_id, to
 
     async def fetch_my_okex_trades(self,
-                                  exchange_class: ExchangeClass,
-                                  symbol: str,
-                                  since: int,
-                                  params: dict
-        ) -> Tuple[SQLTrade, str, int]:
-            '''fetch okex trades'''
-            trades = await exchange_class.exchange.fetch_my_trades(
-                symbol, since=since, limit=None, params=params
+                                   exchange_class: ExchangeClass,
+                                   symbol: str,
+                                   since: int,
+                                   params: dict
+                                   ) -> Tuple[SQLTrade, str, int]:
+        '''fetch okex trades'''
+        trades = await exchange_class.exchange.fetch_my_trades(
+            symbol, since=since, limit=None, params=params
+        )
+        if len(trades) == 0:
+            return [], -1, -1
+        # hacky: picking trade at 0 may skip some orders whose order id are the same
+        # sql table can handle duplicated entry
+        if len(trades) > 1:
+            earliest_trade_id = trades[1]['order']
+        else:
+            earliest_trade_id = trades[0]['order']
+        to = trades[0]['timestamp']
+        orm_trades = []
+        logger.info(f'fetching {exchange_class}')
+        for trade in trades:
+            ccxt_trade = CCXTTrade(**trade)
+            account_name = exchange_class.account_name
+            exchange_name = exchange_class.exchange_name
+            orm_trade = ccxt_trade.to_orm_class(
+                exchange_name=exchange_name, account_name=account_name
             )
-            if len(trades) == 0:
-                return [], -1, -1
-            # hacky: picking trade at 0 may skip some orders whose order id are the same
-            # sql table can handle duplicated entry
-            if len(trades) > 1:
-                earliest_trade_id = trades[1]['order']
-            else:
-                earliest_trade_id = trades[0]['order']
-            to = trades[0]['timestamp']
-            orm_trades = []
-            logger.info(f'fetching {exchange_class}')
-            for trade in trades:
-                ccxt_trade = CCXTTrade(**trade)
-                account_name = exchange_class.account_name
-                exchange_name = exchange_class.exchange_name
-                orm_trade = ccxt_trade.to_orm_class(
-                    exchange_name=exchange_name, account_name=account_name
-                )
-                orm_trades.append(orm_trade)
-            # self._queue.put_nowait(orm_trades)
-            return orm_trades, earliest_trade_id, to
+            orm_trades.append(orm_trade)
+        return orm_trades, earliest_trade_id, to
 
     async def fetch_method_with_okex_pagination(
         self, method, exchange_class: ExchangeClass, bounty_info: BountyInfo
-        ) -> None:
+    ) -> None:
         '''
         okex requires a different pagination method which is not unified under ccxt
         loops through all pages of okex data and commit them to database
@@ -157,12 +155,11 @@ class Fetcher:
                 )
                 raise exc
 
-
     async def loop(
         self, exchange_class: ExchangeClass, bounty_info: BountyInfo, method: str
     ):
         try:
-            if method == Methods.FETCH_OKEX_TRADES or method== Methods.FETCH_OKEX_ORDERS:
+            if method == Methods.FETCH_OKEX_TRADES or method == Methods.FETCH_OKEX_ORDERS:
                 await self.fetch_method_with_okex_pagination(method, exchange_class, bounty_info)
             if method == Methods.FETCH_BALANCES:
                 await self.fetch_balance(exchange_class)
@@ -173,7 +170,7 @@ class Fetcher:
         tasks = []
         try:
             logger.info("initiated fetching")
-            methods = [Methods.FETCH_OKEX_TRADES, Methods.FETCH_BALANCES]
+            methods = [Methods.FETCH_BALANCES]
             tasks = []
             exchange_names = []
             for exchange_class in self._exchange_classes:
