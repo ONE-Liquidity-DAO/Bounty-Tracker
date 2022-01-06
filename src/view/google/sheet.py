@@ -40,22 +40,19 @@ class DBQuery:
 
 class Sheet:
     def __init__(self,
-                 db_type=DB_TYPE,
-                 db_location=DB_LOCATION,
-                 sql_folder=SQL_FOLDER,
-                 cred_location=GOOGLE_LOGIN_LOCATION,
-                 sheet_name=GOOGLE_WORKSHEET_NAME,
-                 balances_sheet_name=GOOGLE_BALANCES_NAME,
-                 trades_sheet_name=GOOGLE_TRADES_NAME,
-                 summary_sheet_name=GOOGLE_SUMMARY_NAME,
-                 config=load_yml(CONFIG_LOCATION)['google']):
+                 db_query: DBQuery = DBQuery(),
+                 cred_location: str=GOOGLE_LOGIN_LOCATION,
+                 sheet_name: str=GOOGLE_WORKSHEET_NAME,
+                 balances_sheet_name: str=GOOGLE_BALANCES_NAME,
+                 trades_sheet_name: str=GOOGLE_TRADES_NAME,
+                 summary_sheet_name: str=GOOGLE_SUMMARY_NAME,
+                 config: dict=load_yml(CONFIG_LOCATION)['google']):
 
         logger.info(f'loading {sheet_name} in google')
         self._ws = self.get_worksheet(
             cred_location=cred_location, sheet_name=sheet_name)
         logger.info(f'loaded {sheet_name} in gooogle')
-        self._query = DBQuery(
-            db_type=db_type, db_location=db_location, sql_folder=sql_folder)
+        self._query = db_query
         self._balances_ws = self._ws.worksheet(balances_sheet_name)
         self._trades_ws = self._ws.worksheet(trades_sheet_name)
         self._summary_ws = self._ws.worksheet(summary_sheet_name)
