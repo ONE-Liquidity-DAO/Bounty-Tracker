@@ -11,9 +11,9 @@ class BountyInfo:
     since: int
     to: int
 
-def create_bounty_info(config_location=BOUNTY_INFO_LOCATION) -> list[BountyInfo]:
+def create_bounty_info(bounty_location: str=BOUNTY_INFO_LOCATION) -> list[BountyInfo]:
     '''create a list of bounty info from config file'''
-    bounty_infos = load_yml(config_location)
+    bounty_infos = load_yml(bounty_location)
     bounty_list = []
     
     for bounty_num, bounty_info in bounty_infos.items():
