@@ -39,10 +39,14 @@ async def main(
         bounty_infos=bounty_infos,
         database=database
     )
+    sheet = Sheet(
+        
+    )
     await fetcher.fetch_all()
-    await fetcher.close_all()
+    
+    await sheet.loop()
     
 if __name__ == "__main__":
     asyncio.run(main())
-    sheet = Sheet()
-    sheet.start()
+
+    await fetcher.close_all()
