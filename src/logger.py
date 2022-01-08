@@ -17,7 +17,6 @@ def setup_logging(log_level=logging.INFO,
     # Use colored logging output for console
     coloredlogs.install(level=log_level, fmt=fmt, logger=logger)
     logging.getLogger("ccxt.base.exchange").setLevel(logging.INFO)
-    # logging.getLogger("web3.RequestManager").propagate = False
 
     # Disable all internal debug logging of requests and urllib3
     # E.g. HTTP traffic
