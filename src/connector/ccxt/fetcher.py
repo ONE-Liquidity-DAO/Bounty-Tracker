@@ -1,7 +1,7 @@
 from typing import Tuple
 from src.database.orm_data import SQLOrder, SQLTrade
-from src.fetcher.ccxt_data import CCXTBalance, CCXTBalances, CCXTOrder, CCXTTicker, CCXTTrade
-from src.fetcher.create_exchange_classes import ExchangeClass
+from src.fetcher.ccxt_data import CCXTBalances, CCXTOrder, CCXTTicker, CCXTTrade
+from fetcher.create_account_infos import ExchangeClass
 from src.fetcher.create_bounty_info import BountyInfo
 from src.database.database import DataBase
 import ccxt.async_support as ccxt
@@ -14,8 +14,6 @@ logger = logging.getLogger(__name__)
 
 class Methods(Enum):
     FETCH_OKEX_TRADES = auto()
-    FETCH_OKEX_ORDERS = auto()
-    FETCH_BALANCES = auto()
 
 
 class Fetcher:

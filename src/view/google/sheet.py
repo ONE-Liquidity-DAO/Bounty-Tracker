@@ -2,13 +2,13 @@ import pandas as pd
 import asyncio
 import gspread
 import gspread_dataframe as gd
-from src.utils import load_yml
+from core.utils import load_yml
 from src.constants import (
     DB_TYPE, DB_LOCATION, SQL_FOLDER, GOOGLE_LOGIN_LOCATION,
     GOOGLE_WORKSHEET_NAME, GOOGLE_BALANCES_NAME, CONFIG_LOCATION,
     GOOGLE_TRADES_NAME, GOOGLE_SUMMARY_NAME)
 import logging
-from src.logger import setup_logging
+from core.logger import setup_logging
 setup_logging()
 logger = logging.getLogger(__name__)
 
@@ -25,11 +25,6 @@ class DBQuery:
         with open(file_location) as f:
             query = f.read()
         return query
-
-    # to maintain same table view across all interface
-    def query_latest_balance(self) -> pd.DataFrame:
-        sql_query = self.load_sql('query_latest_balance')
-        return pd.read_sql_query(sql_query, self.connector)
     
     def query_my_trades(self) -> pd.DataFrame:
         sql_query = self.load_sql('query_trades')

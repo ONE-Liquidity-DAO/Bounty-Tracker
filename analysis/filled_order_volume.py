@@ -1,5 +1,5 @@
 # import packages and get relevant data from sql
-from src.utils import get_utc_timestamp
+from core.utils import get_utc_timestamp
 import pandas as pd
 from src.constants import DB_TYPE, DB_LOCATION
 

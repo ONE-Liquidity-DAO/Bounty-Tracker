@@ -1,0 +1,6 @@
+credentials_location: ./credentials/google_service_cred.json
+user_spreadsheet_name: Liquidity DAO Trading Bounty Signup (Responses)
+user_info_name: UserInfo
+governor_spreadsheet_name: Governor DashBoard
+campaigns_name: Campaigns
+update_interval: 60000

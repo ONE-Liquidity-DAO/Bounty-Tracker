@@ -12,6 +12,18 @@ https://github.com/leastchaos/Tracker/blob/main/filled_order.ipynb
 run pip install -r requirements.txt
 
 # Usage
+set up google service credentials (google_service_cred.json)
+
+https://docs.gspread.org/en/v5.1.1/oauth2.html#for-bots-using-service-account
+
+Enable API Access for a Project if you haven’t done it yet.
+Go to “APIs & Services > Credentials” and choose “Create credentials > Service account key”.
+Fill out the form
+Click “Create” and “Done”.
+Press “Manage service accounts” above Service Accounts.
+Press on ⋮ near recently created service account and select “Manage keys” and then click on “ADD KEY > Create new key”.
+Select JSON key type and press “Create”.
+Place the JSON key under credentials and named it google_service_cred.json
 
 set up bounty info and accounts
 

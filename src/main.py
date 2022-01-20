@@ -1,16 +1,16 @@
 from src.fetcher.fetcher import Fetcher
-from src.fetcher.create_exchange_classes import ExchangeClass, create_exchange_classes, get_account_infos
+from fetcher.create_account_infos import ExchangeClass, create_account_infos, get_account_infos
 from src.fetcher.create_bounty_info import BountyInfo, create_bounty_info
 
 from src.database.database import DataBase
 import asyncio
-from src.logger import setup_logging
+from core.logger import setup_logging
 from view.google.sheet import Sheet
 
 from src.constants import (
     CREDENTIALS_LOCATION, BOUNTY_INFO_LOCATION, DB_TYPE, DB_LOCATION,
     LOG_LEVEL, FILE_LOG_LEVEL, LOG_FILENAME)
-from utils import load_yml
+from core.utils import load_yml
 import logging
 logger = logging.getLogger(__name__)
 async def main(
@@ -24,7 +24,7 @@ async def main(
 ):
     credentials = load_yml(credentials_location)
     account_infos = get_account_infos(credentials)
-    exchange_classes = create_exchange_classes(account_infos)
+    exchange_classes = create_account_infos(account_infos)
     bounty_infos = create_bounty_info(bounty_location)
     setup_logging(
         log_level=log_level,

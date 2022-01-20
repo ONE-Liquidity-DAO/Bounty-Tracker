@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from src.constants import BOUNTY_INFO_LOCATION
-from src.utils import load_yml
+from core.utils import load_yml
 import logging
 logger = logging.getLogger(__name__)
 
