@@ -54,9 +54,12 @@ class GSheet:
         return cls(config)
 
     @staticmethod
-    def get_worksheet_as_dataframe(ws: gspread.Worksheet) -> pd.DataFrame:
+    def get_worksheet_as_dataframe(ws: gspread.Worksheet,
+                                   evaluate_formulas: bool = True,
+                                   **kwargs) -> pd.DataFrame:
         '''get all values in worksheet and returns a pandas dataframe'''
-        df = gd.get_as_dataframe(ws)
+        df = gd.get_as_dataframe(
+            ws, evaluate_formulas=evaluate_formulas, **kwargs)
         df = df.dropna(axis=0, how='all')
         df = df.dropna(axis=1, how='all')
         return df
