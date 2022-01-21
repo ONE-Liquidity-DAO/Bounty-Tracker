@@ -21,7 +21,7 @@ async def get_validated_account_infos(g_sheet: GSheet) -> list[AccountInfo]:
 
 
 class AccountValidator:
-    '''validates all account info on google sheet'''
+    '''a class to update account infos at specified interval from google sheet'''
 
     def __init__(self,
                  g_sheet: GSheet,
@@ -48,6 +48,7 @@ class AccountValidator:
 
 
 async def test():
+    '''test for this module.'''
     sheet = GSheet.create()
     account_validator = await AccountValidator.create(sheet)
     await account_validator.start()

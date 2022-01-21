@@ -46,15 +46,20 @@ def get_active_bounty_infos(sheet: GSheet) -> list[BountyInfo]:
 
 class Bounty:
     '''a class to update new bounty hourly'''
+
     def __init__(self, g_sheet: GSheet) -> None:
         self.g_sheet = g_sheet
-        self.info: list[BountyInfo] = get_active_bounty_infos(g_sheet)
+        self.info: list[BountyInfo] = self.get_active_bounty_infos()
+
+    def get_active_bounty_infos(self):
+        '''return active bounty from google sheet'''
+        return get_active_bounty_infos(self.g_sheet)
 
     async def start(self) -> None:
         '''start a loop to check for new bounty hourly'''
         while True:
             try:
-                get_active_bounty_infos(self.g_sheet)
+                self.get_active_bounty_infos()
                 await asyncio.sleep(3600)
             except KeyboardInterrupt:
                 break
