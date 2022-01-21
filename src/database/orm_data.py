@@ -1,11 +1,14 @@
+'''Contains trade object relational mapper'''
+from sqlalchemy import Column, Float, Integer, String
 from sqlalchemy.orm import declarative_base
-from sqlalchemy import Table, Column, Integer, String, Float, Boolean
-from sqlalchemy.orm import registry
+from sqlalchemy.orm.decl_api import DeclarativeMeta
 
-Base = declarative_base()
+Base: DeclarativeMeta = declarative_base()
+print(type(Base))
 
 
 class SQLTrade(Base):
+    '''sql trade schema'''
     # exchange_name + id + takerorMaker can be used to detect duplicated trade/wash trading
     # the other primary keys are identifier for governor
     __tablename__ = "Trades"

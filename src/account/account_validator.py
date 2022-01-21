@@ -1,9 +1,12 @@
 '''
 main function for account
 '''
+import asyncio
+
 from src.account.create_account_infos import AccountInfo, create_account_infos
 from src.account.get_user_info import get_user_infos
-from src.account.validation import update_validity_in_sheet, validate_account_infos
+from src.account.validation import (update_validity_in_sheet,
+                                    validate_account_infos)
 from src.core.gsheet import GSheet
 
 
@@ -15,6 +18,7 @@ async def get_validated_account_infos(g_sheet: GSheet) -> list[AccountInfo]:
     await validate_account_infos(account_infos)
     update_validity_in_sheet(user_infos, worksheet)
     return [account_info for account_info in account_infos if account_info.user_info.valid]
+
 
 class AccountValidator:
     '''validates all account info on google sheet'''
@@ -42,6 +46,7 @@ class AccountValidator:
             except KeyboardInterrupt:
                 break
 
+
 async def test():
     sheet = GSheet.create()
     account_validator = await AccountValidator.create(sheet)
@@ -51,4 +56,3 @@ async def test():
 if __name__ == '__main__':
     import asyncio
     asyncio.run(test())
-    

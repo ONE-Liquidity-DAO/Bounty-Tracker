@@ -5,7 +5,7 @@ import asyncio
 import logging
 
 from src.account.create_account_infos import AccountInfo
-from src.bounty_info.get_bounty_info import BountyInfo
+from src.bounty.bounty import BountyInfo
 from src.connector.ccxt.base_fetcher import BaseFetcher
 from src.connector.ccxt.ccxt_data import CCXTTrade
 from src.connector.ccxt.pagination import pagination
@@ -72,8 +72,8 @@ async def test() -> None:
     from src.core.gsheet import GSheet
     from src.core.logger import setup_logging
     from src.database.database import DataBase
-    from src.account.main import get_validated_account_infos
-    from src.bounty_info.get_bounty_info import get_active_bounty_infos
+    from src.account.account_validator import get_validated_account_infos
+    from src.bounty.bounty import get_active_bounty_infos
     from src.connector.ccxt.get_config import CCXTConfig
     
     setup_logging()

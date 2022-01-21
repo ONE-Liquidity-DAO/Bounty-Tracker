@@ -12,7 +12,7 @@ from ccxt.base.errors import RateLimitExceeded, ExchangeError, InvalidNonce, Req
 import pandas as pd
 from sqlalchemy.orm.decl_api import DeclarativeMeta
 from src.account.create_account_infos import AccountInfo
-from src.bounty_info.get_bounty_info import BountyInfo
+from src.bounty.bounty import BountyInfo
 from src.connector.ccxt.get_config import CCXTConfig
 logger = logging.getLogger(__name__)
 

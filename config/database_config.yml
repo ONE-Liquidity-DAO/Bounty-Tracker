@@ -1,0 +1,2 @@
+db_type: 'sqlite+pysqlite'
+db_location: './data/database.sqlite'

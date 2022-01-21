@@ -1,10 +1,13 @@
 '''Create the bounty info'''
 # pylint: disable=[too-many-instance-attributes, invalid-name]
+import asyncio
+from datetime import datetime
 import logging
 from dataclasses import dataclass
 
 import pandas as pd
 from src.core.gsheet import GSheet
+from src.core.utils import get_utc_timestamp
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +42,22 @@ def get_active_bounty_infos(sheet: GSheet) -> list[BountyInfo]:
         bounty_info = BountyInfo(**row_dict)
         bounty_infos.append(bounty_info)
     return bounty_infos
+
+
+class Bounty:
+    '''a class to update new bounty hourly'''
+    def __init__(self, g_sheet: GSheet) -> None:
+        self.g_sheet = g_sheet
+        self.info: list[BountyInfo] = get_active_bounty_infos(g_sheet)
+
+    async def start(self) -> None:
+        '''start a loop to check for new bounty hourly'''
+        while True:
+            try:
+                get_active_bounty_infos(self.g_sheet)
+                await asyncio.sleep(3600)
+            except KeyboardInterrupt:
+                break
 
 
 def test() -> None:
