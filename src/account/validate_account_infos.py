@@ -14,24 +14,28 @@ async def validate_account_info(account_info: AccountInfo) -> None:
     '''loads the market and check if account can be validated'''
     try:
         await account_info.exchange.load_markets()
+        await account_info.exchange.close()
+
     except AuthenticationError as error:
         account_info.user_info.valid = False
         account_info.user_info.reason = 'AuthenticationError'
+        await account_info.exchange.close()
         logger.warning('%s: %s not able to be authenticated. skipping user',
-                       account_info.user_info.account_name, error)
+                       account_info.user_info.display_name, error)
         return
+
     account_info.user_info.valid = True
 
 
 async def validate_account_infos(account_infos: list[AccountInfo]) -> None:
-    '''run all validation task asynchronously'''
+    '''run all validation account task asynchronously'''
     tasks = []
     for account_info in account_infos:
         tasks.append(validate_account_info(account_info))
     await asyncio.gather(*tasks)
 
 
-def update_validity(user_infos: list[UserInfo], ws: gspread.Worksheet) -> None:
+def update_validity_in_sheet(user_infos: list[UserInfo], ws: gspread.Worksheet) -> None:
     '''
     update validity of user info back to google sheet
     This provides visual feedback to governor and user to check their api key
@@ -51,6 +55,9 @@ def update_validity(user_infos: list[UserInfo], ws: gspread.Worksheet) -> None:
     ws.update_cells(reason_cells)
 
 
+
+
+
 async def main() -> None:
     '''main function to run this module, mainly for testing purpose.'''
     sheet = GSheet.create()
@@ -59,7 +66,7 @@ async def main() -> None:
     user_infos = get_user_infos(sheet)
     account_infos = create_account_infos(user_infos)
     await validate_account_infos(account_infos)
-    update_validity(user_infos, ws)
+    update_validity_in_sheet(user_infos, ws)
 
 if __name__ == "__main__":
     import asyncio

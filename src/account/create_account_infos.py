@@ -32,7 +32,7 @@ def create_account_infos(user_infos: list[UserInfo]) -> list[AccountInfo]:
             user_info.valid = False
             user_info.reason = 'AttributeError'
             logger.warning('%s: %s, skipping account',
-                           user_info.account_name, error)
+                           user_info.display_name, error)
             continue
 
         account_info = AccountInfo(

@@ -22,13 +22,13 @@ class GoogleConfig:
     user_info_name: str
     governor_spreadsheet_name: str
     campaigns_name: str
-    
 
     @classmethod
     def create(cls, config_file_location: str = CONFIG_LOCATION) -> 'GoogleConfig':
         '''create a google config'''
         config_dict = load_yml(config_file_location)
-        gc = gspread.service_account(filename=config_dict['credentials_location'])
+        gc = gspread.service_account(
+            filename=config_dict['credentials_location'])
         config_dict['client'] = gc
         config_dict.pop('credentials_location')
         return cls(**config_dict)
@@ -36,13 +36,15 @@ class GoogleConfig:
 
 class GSheet:
     '''Provides the interface to google sheet'''
+
     def __init__(self, config: GoogleConfig) -> None:
         '''initialize the google sheet connections to the standard worksheet used'''
         self.client = config.client
         self.update_interval = config.update_interval
-        self.user_ss = self.get_spreadsheet(config.user_spreadsheet_name)        
+        self.user_ss = self.get_spreadsheet(config.user_spreadsheet_name)
         self.user_info_ws = self.user_ss.worksheet(config.user_info_name)
-        self.governor_ss = self.get_spreadsheet(config.governor_spreadsheet_name)
+        self.governor_ss = self.get_spreadsheet(
+            config.governor_spreadsheet_name)
         self.campaigns_ws = self.governor_ss.worksheet(config.campaigns_name)
 
     @classmethod
@@ -62,7 +64,7 @@ class GSheet:
     @staticmethod
     def set_sheet_with_df(ws: gspread.Worksheet,
                           df: pd.DataFrame,
-                          include_index: bool=False) -> None:
+                          include_index: bool = False) -> None:
         '''replace worksheet data with specified dataframe'''
         ws.clear()
         gd.set_with_dataframe(ws, df, include_index=include_index)
@@ -70,4 +72,3 @@ class GSheet:
     def get_spreadsheet(self, sheet_name: str) -> gspread.Spreadsheet:
         '''connect to the service account and return the main worksheet'''
         return self.client.open(sheet_name)
-    
