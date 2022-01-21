@@ -4,90 +4,33 @@ from sqlalchemy.orm import registry
 
 Base = declarative_base()
 
-class SQLBalance(Base):
-    __tablename__ = 'Balances'
-    timestamp = Column(Integer, primary_key=True)
-    account_name = Column(String, primary_key=True)
-    exchange_name = Column(String, primary_key=True)
-    datetime = Column(String)
-    asset = Column(String, primary_key=True)
-    total = Column(Float)
-    free = Column(Float)
-    used = Column(Float)
-    def __repr__(self):
-        return f"SQLBalance({self.__dict__})"
 
 class SQLTrade(Base):
+    # exchange_name + id + takerorMaker can be used to detect duplicated trade/wash trading
+    # the other primary keys are identifier for governor
     __tablename__ = "Trades"
     exchange_name = Column(String, primary_key=True)
-    account_name = Column(String, primary_key=True)
     id = Column(String, primary_key=True)
+    takerOrMaker = Column(String, primary_key=True)
+    # identify campaign id
+    campaign_id: Column(Integer, primary_key=True)
+    # to identify the trade belong to which account for governors
+    # all of below may be removed primary key
+    # but may result in random assignment of trade to account for duplicated trades
+    # need to decide how should we deal with duplicated trade information
+    # or we just remove the primary key and allow random assignment so
+    # we do not need to check
+    display_name = Column(String, primary_key=True)
+    email_address = Column(String, primary_key=True)
+    payout_address = Column(String, primary_key=True)
+    api_key: str = Column(String, primary_key=True)
+
+    # trade details
     datetime = Column(String)
     timestamp = Column(Integer)
     symbol = Column(String)
     side = Column(String)
-    takerOrMaker = Column(String, nullable=True)
-    price = Column(Float)
-    amount = Column(Float)
-    cost = Column(Float)
-    fee = Column(String, nullable=True)
-    fees = Column(String, nullable=True)
     type = Column(String, nullable=True)
-    order = Column(String, nullable=True)
-    fee_currency = Column(String, nullable=True)
-    fee_cost = Column(Float, nullable=True)
-    fee_rate = Column(Float, nullable=True)
-
-class SQLOrder(Base):
-    __tablename__ = 'Orders'
-    exchange_name = Column(String, primary_key=True)
-    account_name = Column(String, primary_key=True)
-    id = Column(String, primary_key=True)
-    account_name = Column(String, primary_key=True)
-    clientOrderId = Column(String, nullable=True)
-    datetime = Column(String)
-    timestamp = Column(Integer)
-    status = Column(String)
-    symbol = Column(String)
-    type = Column(String)
-    timeInForce = Column(String, nullable=True)
-    side = Column(String)
     price = Column(Float)
     amount = Column(Float)
-    filled = Column(Float)
-    remaining = Column(Float)
     cost = Column(Float)
-    cancel_timestamp = Column(Integer)  # non-unified params
-    postOnly = Column(Boolean, nullable=True)
-    fee = Column(String, nullable=True)
-    average = Column(Float, nullable=True)
-    stopPrice = Column(Float, nullable=True)
-    trades = Column(String, nullable=True)
-    fees = Column(String, nullable=True)
-    lastTradeTimestamp = Column(Integer, nullable=True)
-
-    def __repr__(self):
-        return f"SQLOpenOrder({self.__dict__})"
-
-class SQLTicker(Base):
-    __tablename__ = 'Tickers'
-    exchange_name = Column(String, primary_key=True)
-    symbol = Column(String, primary_key=True)
-    timestamp = Column(Integer)
-    datetime = Column(String)
-    high          = Column(Float)
-    low           = Column(Float)
-    bid           = Column(Float)
-    bidVolume     = Column(Float)
-    ask           = Column(Float)
-    askVolume     = Column(Float)
-    vwap          = Column(Float)
-    open          = Column(Float)
-    close         = Column(Float)
-    last          = Column(Float)
-    previousClose = Column(Float)
-    change        = Column(Float)
-    percentage    = Column(Float)
-    average       = Column(Float)
-    baseVolume    = Column(Float)
-    quoteVolume   = Column(Float)

@@ -40,7 +40,7 @@ def get_user_infos(sheet: GSheet) -> list[UserInfo]:
     return user_infos
 
 
-def test():
+def test() -> None:
     '''test'''
     sheet = GSheet.create()
     print(get_user_infos(sheet))

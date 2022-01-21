@@ -55,10 +55,7 @@ def update_validity_in_sheet(user_infos: list[UserInfo], ws: gspread.Worksheet) 
     ws.update_cells(reason_cells)
 
 
-
-
-
-async def main() -> None:
+async def test() -> None:
     '''main function to run this module, mainly for testing purpose.'''
     sheet = GSheet.create()
     ws = sheet.user_info_ws
@@ -73,4 +70,4 @@ if __name__ == "__main__":
     from src.account.get_user_info import get_user_infos
     from src.account.create_account_infos import create_account_infos
     from src.core.gsheet import GSheet
-    asyncio.run(main())
+    asyncio.run(test())

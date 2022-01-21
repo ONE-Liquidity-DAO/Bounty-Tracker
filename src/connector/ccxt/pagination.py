@@ -2,24 +2,10 @@
 # pylint: disable=too-many-arguments
 import asyncio
 import logging
-from enum import Enum, auto
+from typing import Callable
 
-from validation.create_account_infos import AccountInfo
-
-from ccxt.base.errors import NetworkError
-
+from ccxt.base.errors import NetworkError, ExchangeNotAvailable
 logger = logging.getLogger(__name__)
-
-
-class PaginationMethod(Enum):
-    '''defines the method available'''
-    DATETIME = auto()
-    ENDTIME = auto()
-
-
-exchange_pagination_method = {
-    "end_time": PaginationMethod.ENDTIME
-}
 
 
 async def retry_func(func,
@@ -32,47 +18,33 @@ async def retry_func(func,
     for i in range(retry):
         try:
             return await func(symbol, start_time, limit, params)
-        except NetworkError as error:
+        except (ExchangeNotAvailable, NetworkError) as error:
             logger.warning('%s: network error encountered', error)
             await asyncio.sleep(60)
         except Exception as error:
-            logger.warning(
+            logger.exception(
                 'Retry %s, Unknown Exception Encountered: %s', retry, error)
             if i == retry - 1:
                 raise error
             await asyncio.sleep(60)
 
 
-async def pagination(account_info: AccountInfo,
-                     func,
-                     symbol: str,
-                     start_time: int,
-                     limit: int,
-                     params: dict = None) -> list[dict]:
-
-    '''select pagination method by exchange'''
-    method = exchange_pagination_method.get(
-        account_info.pagination, PaginationMethod.DATETIME)
-    if method == PaginationMethod.DATETIME:
-        return await pagination_by_date_time(
-            func, account_info, symbol, start_time, limit, params)
-    if method == PaginationMethod.ENDTIME:
-        return await pagination_by_end_time(
-            func, account_info, symbol, start_time, limit, params)
-    raise NotImplementedError()
-
-
-async def pagination_by_date_time(func,
-                                  account_info: AccountInfo,
+async def pagination_by_date_time(func: Callable,
+                                  display_name: str,
                                   symbol: str,
                                   start_time: int,
-                                  limit: int) -> list[dict]:
-    '''pagination by date time'''
-    end_time = account_info.exchange.milliseconds()
+                                  end_time: int,
+                                  limit: int,
+                                  params: dict = None) -> list[dict]:
+    '''standard pagination method for ccxt'''
     all_results = []
     while start_time < end_time:
-        results = await retry_func(func, symbol, start_time, limit)
-        if len(results):
+        results = await retry_func(func, symbol, start_time, limit, params)
+        if results:
+            logger.info('pagination len: %s, display_name: %s, market:%s ',
+                        len(results),
+                        display_name,
+                        symbol)
             start_time = results[len(results) - 1]['timestamp']
             all_results += results
             await asyncio.sleep(1)
@@ -80,22 +52,22 @@ async def pagination_by_date_time(func,
         break
 
 
-async def pagination_by_end_time(func,
-                                 account_info: AccountInfo,
+async def pagination_by_end_time(func: Callable,
+                                 display_name: str,
                                  symbol: str,
                                  start_time: int,
+                                 end_time: int,
                                  limit: int,
                                  params: dict = None) -> list[dict]:
     '''pagination by end time method'''
-    end_time = account_info.exchange.milliseconds()
     all_results = []
     while end_time > start_time:
         params = {'endTime': end_time}
         results = await retry_func(func, symbol, start_time, limit, params)
         if results:
-            logger.info('pagination len: %s, account_name: %s, market:%s ',
+            logger.info('pagination len: %s, display_name: %s, market:%s ',
                         len(results),
-                        account_info.account_name,
+                        display_name,
                         symbol)
             if end_time == results[0]['timestamp']:
                 break
@@ -107,18 +79,58 @@ async def pagination_by_end_time(func,
     return all_results
 
 
-async def test():
-    '''test'''
-    from validation.create_account_infos import create_account_infos
-    account_infos = create_account_infos()
-    account_info = account_infos[0]
-    print(account_info)
-    func = account_info.exchange.fetch_closed_orders
-    start_time = account_info.exchange.milliseconds() - 86400000
-    symbol = 'MANA/USDT'
-    result = await pagination(account_info, func, symbol, start_time, limit=500)
-    print(result)
-    await account_info.exchange.close()
+async def pagination_by_earliest_id(func: Callable,
+                                    display_name: str,
+                                    symbol: str,
+                                    start_time: int,
+                                    end_time: int,
+                                    limit: int,
+                                    params: dict = None) -> list[dict]:
+    '''pagination for okex exchange'''
+    earliest_id = None
+    all_results = []
+    while end_time > start_time:
+        params = {}
+        if earliest_id:
+            params = {'after': earliest_id}
+        results = await retry_func(func, symbol, start_time, limit, params)
+        # hacky: picking trade at 0 may skip some result whose order id are the same
+        # sql table can handle duplicated entry
+        if results:
+            logger.info('pagination len: %s, display_name: %s, market:%s ',
+                        len(results),
+                        display_name,
+                        symbol)
+            all_results += results
+            earliest_id = results[0]['order']
+            if len(results) > 1:
+                earliest_id = results[1]['order']
+            end_time = results[0]['timestamp']
+        else:
+            break
+        if earliest_id == -1:
+            break
 
-if __name__ == '__main__':
-    asyncio.run(test())
+    return all_results
+
+PAGINATION_METHODS = {
+    "date_time": pagination_by_date_time,
+    "end_time": pagination_by_end_time,
+    "earliest_id": pagination_by_earliest_id
+}
+
+
+async def pagination(func: Callable,
+                     method: str,
+                     display_name: str,
+                     symbol: str,
+                     start_time: int,
+                     end_time: int,
+                     limit: int,
+                     params: dict = None) -> list[dict]:
+    pagination_method = PAGINATION_METHODS.get(
+        method, pagination_by_date_time)
+    results = await pagination_method(
+        func, display_name, symbol, start_time,
+        end_time, limit, params)
+    return results

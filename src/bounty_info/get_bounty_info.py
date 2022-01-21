@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class BountyInfo:
     '''bounty schema information'''
-    exchange: str
+    exchange_name: str
     market: str
     start_date: str
     end_date: str
@@ -30,6 +30,7 @@ def get_active_bounty_infos(sheet: GSheet) -> list[BountyInfo]:
     ws = sheet.campaigns_ws
     df = sheet.get_worksheet_as_dataframe(ws)
     # replace nan with none to convert to dictionary
+    logger.info('active bounty: %s', df)
     df = df.replace({pd.NA: None})
     for _, row in df.iterrows():
         if not row['active']:
@@ -39,10 +40,13 @@ def get_active_bounty_infos(sheet: GSheet) -> list[BountyInfo]:
         bounty_infos.append(bounty_info)
     return bounty_infos
 
-def test():
+
+def test() -> None:
+    '''module test'''
     sheet = GSheet.create()
     bounty_infos = get_active_bounty_infos(sheet)
     print(bounty_infos)
+
 
 if __name__ == '__main__':
     test()

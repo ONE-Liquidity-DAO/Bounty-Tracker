@@ -1,0 +1,6 @@
+update_interval: 300
+limits:
+  okex: 100 #
+pagination:
+  ascendex: 'end_time'
+  okex: 'earliest_id'
