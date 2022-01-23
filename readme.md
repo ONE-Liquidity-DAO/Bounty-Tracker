@@ -3,42 +3,44 @@
 This fetches data from exchange using ccxt as the connector and export the data to a sql database.
 # Installation
 
-1) Install dependencies
+## 1) Install dependencies
 sudo apt-get update
 sudo apt-get install -y build-essential
 
 
-2) Install Miniconda3
+## 2) Install Miniconda3
 wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
 sh Miniconda3-latest-Linux-x86_64.sh
 
 
-3) Create Conda Environment
+## 3) Create Conda Environment
 conda create -n bountytracker python=3.10
 
 
-4) Activate Conda Environment
+## 4) Activate Conda Environment
 conda activate bountytracker
 
 
-5) Install requirements
+## 5) Install requirements
 pip install -r requirements.txt
 
 
-6) Clone the github repository
+## 6) Clone the github repository
 git clone https://github.com/ONE-Liquidity-DAO/Bounty-Tracker.git tracker
 
 
 # Usage
-7) cd to the cloned repository
+## cd to the cloned repository
 cd tracker
 
-8) run the script
+## run the script
 there are 2 ways defined here to run the script (or whichever method you prefer)
 
-8.1) open tmux and run the script inside tmux to be reattached next time
+### open tmux and run the script inside tmux to be reattached next time
 run the following line while in the main folder and a tmux terminal will open.
+
 chmod +x bin/start.sh
+
 ./bin/start.sh
 
 you can leave the tmux by detaching with the following command
@@ -48,7 +50,7 @@ to reattach and view the running logs, use the following command
 
 e.g tmux attach -t "1"
 
-8.2) to run the script in background and set the output log to a file to be opened
+### to run the script in background and set the output log to a file to be opened
 the log can be viewed in output.log
 
 
