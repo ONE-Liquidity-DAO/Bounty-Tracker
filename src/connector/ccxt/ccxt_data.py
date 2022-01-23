@@ -33,9 +33,10 @@ class CCXTBase:
                      bounty_info: BountyInfo,
                      SQL_class: DeclarativeMeta) -> DeclarativeMeta:
         '''convert data class to orm class'''
-        sql_dict = asdict(self)
-        sql_dict.update(asdict(user_info))
+        
+        sql_dict= asdict(user_info)
         sql_dict.update(asdict(bounty_info))
+        sql_dict.update(asdict(self))
         orm_dict = {}
         keys = SQL_class.__table__.columns.keys()
         for key in sql_dict:

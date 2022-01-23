@@ -27,7 +27,6 @@ class CCXTConfig:
 def test() -> None:
     '''module test'''
     config = CCXTConfig.create()
-    print(config)
 
 
 if __name__ == '__main__':

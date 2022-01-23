@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class UserInfo:
     '''User Info Google Sheet schema'''
-    timestamp: str
+    Timestamp: str
     email_address: str
     payout_address: str
     display_name: str
@@ -43,7 +43,6 @@ def get_user_infos(sheet: GSheet) -> list[UserInfo]:
 def test() -> None:
     '''test'''
     sheet = GSheet.create()
-    print(get_user_infos(sheet))
 
 if __name__ == '__main__':
     test()

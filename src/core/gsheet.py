@@ -1,13 +1,12 @@
 '''Initialize google connection'''
-# pylint: disable=[invalid-name, too-many-instance-attributes]
-
-from dataclasses import dataclass
-import gspread
-import pandas as pd
-import gspread_dataframe as gd
 import logging
+from dataclasses import dataclass
 
+import gspread
+import gspread_dataframe as gd
+import pandas as pd
 from src.core.utils import load_yml
+
 logger = logging.getLogger(__name__)
 
 CONFIG_LOCATION = './config/google_config.yml'
@@ -22,14 +21,15 @@ class GoogleConfig:
     user_info_name: str
     governor_spreadsheet_name: str
     campaigns_name: str
+    trades_spreadsheet_name: str
 
     @classmethod
     def create(cls, config_file_location: str = CONFIG_LOCATION) -> 'GoogleConfig':
         '''create a google config'''
         config_dict = load_yml(config_file_location)
-        gc = gspread.service_account(
+        gsc = gspread.service_account(
             filename=config_dict['credentials_location'])
-        config_dict['client'] = gc
+        config_dict['client'] = gsc
         config_dict.pop('credentials_location')
         return cls(**config_dict)
 
@@ -46,6 +46,7 @@ class GSheet:
         self.governor_ss = self.get_spreadsheet(
             config.governor_spreadsheet_name)
         self.campaigns_ws = self.governor_ss.worksheet(config.campaigns_name)
+        self.trades_ss = self.get_spreadsheet(config.trades_spreadsheet_name)
 
     @classmethod
     def create(cls, config_file_location: str = CONFIG_LOCATION) -> 'GSheet':
@@ -54,24 +55,30 @@ class GSheet:
         return cls(config)
 
     @staticmethod
-    def get_worksheet_as_dataframe(ws: gspread.Worksheet,
+    def get_worksheet_as_dataframe(worksheet: gspread.Worksheet,
                                    evaluate_formulas: bool = True,
                                    **kwargs) -> pd.DataFrame:
         '''get all values in worksheet and returns a pandas dataframe'''
-        df = gd.get_as_dataframe(
-            ws, evaluate_formulas=evaluate_formulas, **kwargs)
-        df = df.dropna(axis=0, how='all')
-        df = df.dropna(axis=1, how='all')
-        return df
+        dataframe = gd.get_as_dataframe(
+            worksheet, evaluate_formulas=evaluate_formulas, **kwargs)
+        dataframe = dataframe.dropna(axis=0, how='all')
+        dataframe = dataframe.dropna(axis=1, how='all')
+        return dataframe
 
     @staticmethod
-    def set_sheet_with_df(ws: gspread.Worksheet,
-                          df: pd.DataFrame,
+    def set_sheet_with_df(worksheet: gspread.Worksheet,
+                          dataframe: pd.DataFrame,
                           include_index: bool = False) -> None:
         '''replace worksheet data with specified dataframe'''
-        ws.clear()
-        gd.set_with_dataframe(ws, df, include_index=include_index)
+        worksheet.clear()
+        gd.set_with_dataframe(worksheet, dataframe,
+                              include_index=include_index)
 
     def get_spreadsheet(self, sheet_name: str) -> gspread.Spreadsheet:
         '''connect to the service account and return the main worksheet'''
-        return self.client.open(sheet_name)
+        try:
+            return self.client.open(sheet_name)
+        except gspread.exceptions.SpreadsheetNotFound as error:
+            logger.exception('%s: Please check if you have created the spreadsheet %s'
+                             ' and shared the spread sheet with the service account. ',
+                             error, sheet_name)

@@ -52,7 +52,6 @@ async def test():
     sheet = GSheet.create()
     account_validator = await AccountValidator.create(sheet)
     await account_validator.start()
-    print(account_validator.account_infos)
 
 if __name__ == '__main__':
     import asyncio

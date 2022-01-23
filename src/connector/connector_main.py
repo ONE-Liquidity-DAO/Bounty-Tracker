@@ -1,16 +1,20 @@
 '''runs the fetch trading program'''
+import asyncio
+
+from src.account.account_validator import AccountValidator
+from src.bounty.bounty import Bounty
 from src.connector.ccxt.fetch_trades import TradeFetcher
+from src.connector.ccxt.get_config import CCXTConfig
 from src.core.gsheet import GSheet
 from src.core.logger import setup_logging
 from src.database.database import DataBase
-from src.account.account_validator import AccountValidator
-from src.bounty.bounty import Bounty
-from src.connector.ccxt.get_config import CCXTConfig
 
 
 async def main() -> None:
     '''starts the ccxt fetcher'''
-    setup_logging()
+    logger=setup_logging()
+    logger.info('starting ccxt fetcher')
+    
     database = DataBase()
     g_sheet = GSheet.create()
 

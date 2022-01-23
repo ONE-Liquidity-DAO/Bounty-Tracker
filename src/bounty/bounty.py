@@ -69,7 +69,6 @@ def test() -> None:
     '''module test'''
     sheet = GSheet.create()
     bounty_infos = get_active_bounty_infos(sheet)
-    print(bounty_infos)
 
 
 if __name__ == '__main__':

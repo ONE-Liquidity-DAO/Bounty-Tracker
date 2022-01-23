@@ -1,10 +1,13 @@
 '''Helper Class for database action'''
+import logging
 from dataclasses import dataclass
+
+import pandas as pd
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from src.core.utils import load_yml
 from src.database.orm_data import Base
-import logging
+
 logger = logging.getLogger(__name__)
 
 DB_CONFIG_LOCATION = './config/database_config.yml'
@@ -28,12 +31,13 @@ class DataBase:
         '''initialize database parameters'''
         db_type = db_config.db_type
         db_location = db_config.db_location
+        self.connector = f"{db_type}:///{db_location}"
         self.engine = create_engine(
-            f"{db_type}:///{db_location}", echo=False, future=True)
-        self.Base = Base
+            self.connector, echo=False, future=True)
+        self.base = Base
         # this will create a table if it does not exists in the database
         # or load the table if it exists
-        self.Base.metadata.create_all(self.engine)
+        self.base.metadata.create_all(self.engine)
 
     def commit_task_list_to_sql(self, task_list: list[Base]) -> None:
         '''commit list of task to database'''
@@ -51,6 +55,20 @@ class DataBase:
                 session.merge(order)
             session.commit()
         logger.debug('commited: %s', task)
+
+    def query_sql(self, sql_query: str, **kwargs) -> pd.DataFrame:
+        '''
+        get sql query and return a dataframe
+        kwargs: additional parameters for pd.read_sql_query
+        '''
+        return pd.read_sql_query(sql_query, self.connector, **kwargs)
+
+    def query_table(self, table_name: str, **kwargs) -> pd.DataFrame:
+        '''
+        get entire table from database
+        kwargs: additional parameters for pd.read_sql_table
+        '''
+        return pd.read_sql_table(table_name, self.connector, **kwargs)
 
 
 if __name__ == "__main__":

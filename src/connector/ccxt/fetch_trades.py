@@ -19,7 +19,7 @@ MAX_LOOKBACK_FOR_TRADES_IN_MS = 1 * HOUR_MS
 
 class TradeFetcher(BaseFetcher):
     '''
-    provides the implementation to fetch tradesusing CCXT
+    provides the implementation to fetch trades using CCXT
     '''
     async def fetch(self, account_info: AccountInfo, bounty_info: BountyInfo) -> None:
         '''update all latest trades based on api every interval'''
