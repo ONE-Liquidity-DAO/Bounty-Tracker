@@ -1,3 +1,0 @@
--- SQLite
-SELECT *
-FROM Orders

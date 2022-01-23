@@ -3,4 +3,8 @@ pandas
 ccxt
 pyyaml
 coloredlogs
-.
+
+gspread
+gspread_dataframe
+coverage
+numpy
