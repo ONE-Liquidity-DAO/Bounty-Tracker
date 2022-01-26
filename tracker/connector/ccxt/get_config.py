@@ -1,7 +1,7 @@
 '''get ccxt config'''
 # pylint: disable=[invalid-name, too-many-instance-attributes]
 import logging
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from tracker.core.utils import load_yml
 
@@ -27,6 +27,7 @@ class CCXTConfig:
 def test() -> None:
     '''module test'''
     config = CCXTConfig.create()
+    print(config)
 
 
 if __name__ == '__main__':

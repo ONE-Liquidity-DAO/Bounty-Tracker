@@ -27,6 +27,7 @@ class DBConfig:
 
 
 class DataBase:
+    '''helper interface for other script'''
     def __init__(self, db_config: DBConfig = DBConfig.create()):
         '''initialize database parameters'''
         db_type = db_config.db_type

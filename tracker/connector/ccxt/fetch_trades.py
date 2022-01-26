@@ -34,6 +34,10 @@ class TradeFetcher(BaseFetcher):
 
         for trade in trades:
             ccxt_trade = CCXTTrade(**trade)
+            if (ccxt_trade.timestamp < bounty_info.start_timestamp or
+                    ccxt_trade.timestamp > bounty_info.end_timestamp):
+                continue
+
             orm = ccxt_trade.to_orm_class(
                 account_info.user_info, bounty_info, SQLTrade)
             orm_list.append(orm)
@@ -44,13 +48,13 @@ class TradeFetcher(BaseFetcher):
                     account_info.user_info.display_name)
         self.commit_task_list_to_sql(orm_list)
 
-
     async def fetch_my_trades_by_symbol(self,
                                         account_info: AccountInfo,
                                         bounty_info: BountyInfo) -> list[dict]:
         '''fetch trades by symbol and returns a list of trade json by ccxt'''
         limit = self._config.limits[account_info.user_info.exchange_name]
-        method = self._config.pagination.get(account_info.user_info.exchange_name)
+        method = self._config.pagination.get(
+            account_info.user_info.exchange_name)
         display_name = account_info.user_info.display_name
         market = bounty_info.market
         start_time = bounty_info.start_timestamp
@@ -66,6 +70,8 @@ class TradeFetcher(BaseFetcher):
                                    limit=limit)
         return results
 
+# pylint: disable=[import-outside-toplevel]
+
 
 async def test() -> None:
     '''test module code'''
@@ -75,7 +81,7 @@ async def test() -> None:
     from tracker.account.account_validator import get_validated_account_infos
     from tracker.bounty.bounty import get_active_bounty_infos
     from tracker.connector.ccxt.get_config import CCXTConfig
-    
+
     setup_logging()
     database = DataBase()
     gsheet = GSheet.create()

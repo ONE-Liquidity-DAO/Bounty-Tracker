@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class AccountInfo:
+    '''contains account info to authenticate exchange api'''
     user_info: UserInfo
     exchange: Exchange
 
@@ -41,5 +42,3 @@ def create_account_infos(user_infos: list[UserInfo]) -> list[AccountInfo]:
         )
         account_infos.append(account_info)
     return account_infos
-
-

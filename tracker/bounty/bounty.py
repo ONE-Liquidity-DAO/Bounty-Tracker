@@ -1,13 +1,11 @@
 '''Create the bounty info'''
 # pylint: disable=[too-many-instance-attributes, invalid-name]
 import asyncio
-from datetime import datetime
 import logging
 from dataclasses import dataclass
 
 import pandas as pd
 from tracker.core.gsheet import GSheet
-from tracker.core.utils import get_utc_timestamp
 
 logger = logging.getLogger(__name__)
 
@@ -44,6 +42,22 @@ def get_active_bounty_infos(sheet: GSheet) -> list[BountyInfo]:
     return bounty_infos
 
 
+def get_bounty_info_from_campaign_id(sheet: GSheet, campaign_id: int) -> BountyInfo:
+    '''get bounty info from campaign id from campaign worksheet'''
+    ws = sheet.campaigns_ws
+    df = sheet.get_worksheet_as_dataframe(ws)
+    # replace nan with none to convert to dictionary
+    logger.debug('bounty df: %s', df)
+    df = df.replace({pd.NA: None})
+    # TODO: To vectorize
+    for _, row in df.iterrows():
+        if row['campaign_id'] == campaign_id:
+            row_dict = row.to_dict()
+            bounty_info = BountyInfo(**row_dict)
+            return bounty_info
+    raise KeyError('Value not found')
+
+
 class Bounty:
     '''a class to update new bounty hourly'''
 
@@ -69,6 +83,7 @@ def test() -> None:
     '''module test'''
     sheet = GSheet.create()
     bounty_infos = get_active_bounty_infos(sheet)
+    print(bounty_infos)
 
 
 if __name__ == '__main__':
