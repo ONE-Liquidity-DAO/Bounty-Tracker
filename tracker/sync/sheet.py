@@ -4,8 +4,8 @@ import logging
 
 import gspread
 import pandas as pd
-from src.core.gsheet import GSheet
-from src.database.database import DataBase
+from tracker.core.gsheet import GSheet
+from tracker.database.database import DataBase
 
 
 logger = logging.getLogger(__name__)

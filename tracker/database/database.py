@@ -5,8 +5,8 @@ from dataclasses import dataclass
 import pandas as pd
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
-from src.core.utils import load_yml
-from src.database.orm_data import Base
+from tracker.core.utils import load_yml
+from tracker.database.orm_data import Base
 
 logger = logging.getLogger(__name__)
 

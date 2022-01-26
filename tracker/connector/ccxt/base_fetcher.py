@@ -11,9 +11,9 @@ from typing import Protocol
 from ccxt.base.errors import RateLimitExceeded, ExchangeError, InvalidNonce, RequestTimeout, OnMaintenance
 import pandas as pd
 from sqlalchemy.orm.decl_api import DeclarativeMeta
-from src.account.create_account_infos import AccountInfo
-from src.bounty.bounty import BountyInfo
-from src.connector.ccxt.get_config import CCXTConfig
+from tracker.account.create_account_infos import AccountInfo
+from tracker.bounty.bounty import BountyInfo
+from tracker.connector.ccxt.get_config import CCXTConfig
 logger = logging.getLogger(__name__)
 
 

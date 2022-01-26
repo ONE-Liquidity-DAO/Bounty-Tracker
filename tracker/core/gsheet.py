@@ -5,7 +5,7 @@ from dataclasses import dataclass
 import gspread
 import gspread_dataframe as gd
 import pandas as pd
-from src.core.utils import load_yml
+from tracker.core.utils import load_yml
 
 logger = logging.getLogger(__name__)
 

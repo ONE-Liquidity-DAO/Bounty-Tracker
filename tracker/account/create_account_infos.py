@@ -4,7 +4,7 @@ import logging
 from dataclasses import dataclass
 import ccxt.async_support as ccxt
 from ccxt.base.exchange import Exchange
-from src.account.get_user_info import UserInfo
+from tracker.account.get_user_info import UserInfo
 logger = logging.getLogger(__name__)
 
 

@@ -6,8 +6,8 @@ import logging
 from dataclasses import dataclass
 
 import pandas as pd
-from src.core.gsheet import GSheet
-from src.core.utils import get_utc_timestamp
+from tracker.core.gsheet import GSheet
+from tracker.core.utils import get_utc_timestamp
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +33,7 @@ def get_active_bounty_infos(sheet: GSheet) -> list[BountyInfo]:
     ws = sheet.campaigns_ws
     df = sheet.get_worksheet_as_dataframe(ws)
     # replace nan with none to convert to dictionary
-    logger.info('active bounty: %s', df)
+    logger.debug('bounty df: %s', df)
     df = df.replace({pd.NA: None})
     for _, row in df.iterrows():
         if not row['active']:

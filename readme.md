@@ -14,7 +14,7 @@ sh Miniconda3-latest-Linux-x86_64.sh
 
 
 ## 3) Create Conda Environment
-conda create -n bountytracker python=3.10
+conda create -n bountytracker python=3.10 -y
 
 
 ## 4) Activate Conda Environment

@@ -3,7 +3,7 @@
 import logging
 from dataclasses import dataclass, field
 import pandas as pd
-from src.core.gsheet import GSheet
+from tracker.core.gsheet import GSheet
 
 logger = logging.getLogger(__name__)
 

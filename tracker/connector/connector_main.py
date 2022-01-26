@@ -1,13 +1,13 @@
 '''runs the fetch trading program'''
 import asyncio
 
-from src.account.account_validator import AccountValidator
-from src.bounty.bounty import Bounty
-from src.connector.ccxt.fetch_trades import TradeFetcher
-from src.connector.ccxt.get_config import CCXTConfig
-from src.core.gsheet import GSheet
-from src.core.logger import setup_logging
-from src.database.database import DataBase
+from tracker.account.account_validator import AccountValidator
+from tracker.bounty.bounty import Bounty
+from tracker.connector.ccxt.fetch_trades import TradeFetcher
+from tracker.connector.ccxt.get_config import CCXTConfig
+from tracker.core.gsheet import GSheet
+from tracker.core.logger import setup_logging
+from tracker.database.database import DataBase
 
 
 async def main() -> None:

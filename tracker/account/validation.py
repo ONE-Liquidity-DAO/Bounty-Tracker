@@ -4,9 +4,9 @@ import asyncio
 import logging
 import gspread
 from ccxt.base.errors import AuthenticationError
-from src.core.gsheet import GSheet
-from src.account.get_user_info import UserInfo
-from src.account.create_account_infos import AccountInfo
+from tracker.core.gsheet import GSheet
+from tracker.account.get_user_info import UserInfo
+from tracker.account.create_account_infos import AccountInfo
 logger = logging.getLogger(__name__)
 
 
@@ -67,7 +67,7 @@ async def test() -> None:
 
 if __name__ == "__main__":
     import asyncio
-    from src.account.get_user_info import get_user_infos
-    from src.account.create_account_infos import create_account_infos
-    from src.core.gsheet import GSheet
+    from tracker.account.get_user_info import get_user_infos
+    from tracker.account.create_account_infos import create_account_infos
+    from tracker.core.gsheet import GSheet
     asyncio.run(test())

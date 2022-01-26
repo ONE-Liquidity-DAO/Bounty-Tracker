@@ -1,9 +1,9 @@
 '''starts sync trades to google sheet'''
 import asyncio
-from src.core.gsheet import GSheet
-from src.database.database import DataBase
-from src.sync.sheet import GoogleSyncTrade
-from src.core.logger import setup_logging
+from tracker.core.gsheet import GSheet
+from tracker.database.database import DataBase
+from tracker.sync.sheet import GoogleSyncTrade
+from tracker.core.logger import setup_logging
 
 
 async def main():

@@ -3,11 +3,11 @@ main function for account
 '''
 import asyncio
 
-from src.account.create_account_infos import AccountInfo, create_account_infos
-from src.account.get_user_info import get_user_infos
-from src.account.validation import (update_validity_in_sheet,
+from tracker.account.create_account_infos import AccountInfo, create_account_infos
+from tracker.account.get_user_info import get_user_infos
+from tracker.account.validation import (update_validity_in_sheet,
                                     validate_account_infos)
-from src.core.gsheet import GSheet
+from tracker.core.gsheet import GSheet
 
 
 async def get_validated_account_infos(g_sheet: GSheet) -> list[AccountInfo]:

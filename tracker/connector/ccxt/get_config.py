@@ -3,7 +3,7 @@
 import logging
 from dataclasses import dataclass, field
 
-from src.core.utils import load_yml
+from tracker.core.utils import load_yml
 
 logger = logging.getLogger(__name__)
 

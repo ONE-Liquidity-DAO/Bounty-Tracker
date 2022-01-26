@@ -4,12 +4,12 @@ Fetch Trades from Exchange using CCXT
 import asyncio
 import logging
 
-from src.account.create_account_infos import AccountInfo
-from src.bounty.bounty import BountyInfo
-from src.connector.ccxt.base_fetcher import BaseFetcher
-from src.connector.ccxt.ccxt_data import CCXTTrade
-from src.connector.ccxt.pagination import pagination
-from src.database.orm_data import SQLTrade
+from tracker.account.create_account_infos import AccountInfo
+from tracker.bounty.bounty import BountyInfo
+from tracker.connector.ccxt.base_fetcher import BaseFetcher
+from tracker.connector.ccxt.ccxt_data import CCXTTrade
+from tracker.connector.ccxt.pagination import pagination
+from tracker.database.orm_data import SQLTrade
 
 logger = logging.getLogger(__name__)
 
@@ -69,12 +69,12 @@ class TradeFetcher(BaseFetcher):
 
 async def test() -> None:
     '''test module code'''
-    from src.core.gsheet import GSheet
-    from src.core.logger import setup_logging
-    from src.database.database import DataBase
-    from src.account.account_validator import get_validated_account_infos
-    from src.bounty.bounty import get_active_bounty_infos
-    from src.connector.ccxt.get_config import CCXTConfig
+    from tracker.core.gsheet import GSheet
+    from tracker.core.logger import setup_logging
+    from tracker.database.database import DataBase
+    from tracker.account.account_validator import get_validated_account_infos
+    from tracker.bounty.bounty import get_active_bounty_infos
+    from tracker.connector.ccxt.get_config import CCXTConfig
     
     setup_logging()
     database = DataBase()
