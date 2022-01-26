@@ -22,7 +22,7 @@ def create_account_infos(user_infos: list[UserInfo]) -> list[AccountInfo]:
         try:
             exchange = getattr(ccxt, user_info.exchange_name)(
                 {
-                    "enableRateLimit": user_info.enableRateLimit,
+                    "enableRateLimit": user_info.enable_rate_limit,
                     "defaultType": user_info.type,
                     "apiKey": user_info.api_key,
                     "secret": user_info.secret,

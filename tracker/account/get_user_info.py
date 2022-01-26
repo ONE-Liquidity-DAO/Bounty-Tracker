@@ -1,5 +1,5 @@
 '''gets and validate account info from google sheet'''
-# pylint: disable=[invalid-name, too-many-instance-attributes]
+
 import logging
 from dataclasses import dataclass, field
 import pandas as pd
@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 @dataclass
-class UserInfo:
+class UserInfo:  # pylint: disable=[too-many-instance-attributes, invalid-name]
     '''User Info Google Sheet schema'''
     Timestamp: str
     email_address: str
@@ -22,18 +22,18 @@ class UserInfo:
     passphrase: str = field(default=None, repr=False)
     valid: bool = None
     reason: str = None
-    enableRateLimit: bool = True
+    enable_rate_limit: bool = True
     type: str = 'spot'
 
 
 def get_user_infos(sheet: GSheet) -> list[UserInfo]:
     '''get all account infos from api keys'''
     user_infos = []
-    ws = sheet.user_info_ws
-    df = sheet.get_worksheet_as_dataframe(ws)
+    worksheet = sheet.user_info_ws
+    dataframe = sheet.get_worksheet_as_dataframe(worksheet)
     # replace nan with none to convert to dictionary
-    df = df.replace({pd.NA: None})
-    for _, row in df.iterrows():
+    dataframe = dataframe.replace({pd.NA: None})
+    for _, row in dataframe.iterrows():
         row_dict = row.to_dict()
         user_info = UserInfo(**row_dict)
         user_infos.append(user_info)
@@ -43,6 +43,8 @@ def get_user_infos(sheet: GSheet) -> list[UserInfo]:
 def test() -> None:
     '''test'''
     sheet = GSheet.create()
+    print(sheet)
+
 
 if __name__ == '__main__':
     test()
