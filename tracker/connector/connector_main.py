@@ -12,9 +12,9 @@ from tracker.database.database import DataBase
 
 async def main() -> None:
     '''starts the ccxt fetcher'''
-    logger=setup_logging()
+    logger = setup_logging()
     logger.info('starting ccxt fetcher')
-    
+
     database = DataBase()
     g_sheet = GSheet.create()
 
@@ -36,5 +36,4 @@ async def main() -> None:
                          fetcher.start())
 
 if __name__ == '__main__':
-    import asyncio
     asyncio.run(main())

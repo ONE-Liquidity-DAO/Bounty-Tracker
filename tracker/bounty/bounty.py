@@ -70,11 +70,11 @@ class Bounty:
         return get_active_bounty_infos(self.g_sheet)
 
     async def start(self) -> None:
-        '''start a loop to check for new bounty hourly'''
+        '''start a loop to check for new bounty every 10 minutes'''
         while True:
             try:
                 self.get_active_bounty_infos()
-                await asyncio.sleep(3600)
+                await asyncio.sleep(600)
             except KeyboardInterrupt:
                 break
 

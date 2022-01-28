@@ -44,6 +44,7 @@ class GoogleSyncTrade:
         '''starts the application'''
         while True:
             try:
+                self.set_sheets_by_campaign_id()
                 logger.info('sleep for %s seconds', self.update_interval)
             except Exception as error:  #pylint: disable=broad-except
                 logger.exception('%s: retry in 5min', error)

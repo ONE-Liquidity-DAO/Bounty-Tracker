@@ -8,7 +8,11 @@ import asyncio
 from abc import ABC, abstractmethod
 from typing import Protocol
 
-from ccxt.base.errors import RateLimitExceeded, ExchangeError, InvalidNonce, RequestTimeout, OnMaintenance
+from ccxt.base.errors import (RateLimitExceeded,
+                              ExchangeError,
+                              InvalidNonce,
+                              RequestTimeout,
+                              OnMaintenance)
 import pandas as pd
 from sqlalchemy.orm.decl_api import DeclarativeMeta
 from tracker.account.create_account_infos import AccountInfo
@@ -53,7 +57,6 @@ class BaseFetcher(ABC):
     async def fetch(self, account_info: AccountInfo, bounty_info: BountyInfo) -> None:
         '''fetch method for ccxt defines here'''
 
-
     async def loop(self, account_info: AccountInfo, bounty_info: BountyInfo) -> asyncio.Future:
         '''starts looping the fetch method for account info indefinitely'''
         while True:
@@ -87,11 +90,13 @@ class BaseFetcher(ABC):
         tasks = []
         for account_info in self._account_infos:
             for bounty_info in self._bounty_infos:
-                tasks.append(asyncio.create_task(self.loop(account_info, bounty_info)))
+                tasks.append(asyncio.create_task(
+                    self.loop(account_info, bounty_info)))
         await asyncio.gather(*tasks)
 
     async def close_all(self) -> None:
         '''close connections to all accountexchange'''
         for account_info in self._account_infos:
-            logger.debug("close exchange %s", account_info.user_info.exchange_name)
+            logger.debug("close exchange %s",
+                         account_info.user_info.exchange_name)
             await account_info.exchange.close()

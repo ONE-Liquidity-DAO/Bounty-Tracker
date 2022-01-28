@@ -52,6 +52,7 @@ class TradeFetcher(BaseFetcher):
                                         account_info: AccountInfo,
                                         bounty_info: BountyInfo) -> list[dict]:
         '''fetch trades by symbol and returns a list of trade json by ccxt'''
+
         limit = self._config.limits[account_info.user_info.exchange_name]
         method = self._config.pagination.get(
             account_info.user_info.exchange_name)
@@ -60,6 +61,7 @@ class TradeFetcher(BaseFetcher):
         start_time = bounty_info.start_timestamp
         end_time = bounty_info.end_timestamp
         func = account_info.exchange.fetch_my_trades
+        # TODO: add cache to start from latest trade fetched to reduce server load
 
         results = await pagination(func=func,
                                    method=method,
