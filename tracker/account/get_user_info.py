@@ -36,6 +36,8 @@ def get_user_infos(sheet: GSheet) -> list[UserInfo]:
     for _, row in dataframe.iterrows():
         row_dict = row.to_dict()
         user_info = UserInfo(**row_dict)
+        if not user_info.Timestamp:
+            continue
         user_infos.append(user_info)
     return user_infos
 

@@ -4,4 +4,4 @@ user_info_name: UserInfo
 governor_spreadsheet_name: Governor DashBoard
 campaigns_name: Campaigns
 trades_spreadsheet_name: Trade History
-update_interval: 60000
+update_interval: 600

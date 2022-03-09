@@ -5,6 +5,7 @@ import logging
 from dataclasses import dataclass
 
 import pandas as pd
+import requests
 from tracker.core.gsheet import GSheet
 
 logger = logging.getLogger(__name__)
@@ -39,6 +40,7 @@ def get_active_bounty_infos(sheet: GSheet) -> list[BountyInfo]:
         row_dict = row.to_dict()
         bounty_info = BountyInfo(**row_dict)
         bounty_infos.append(bounty_info)
+    logger.info('bounty_info: %s', bounty_infos)
     return bounty_infos
 
 
@@ -74,6 +76,9 @@ class Bounty:
         while True:
             try:
                 self.get_active_bounty_infos()
+                await asyncio.sleep(600)
+            except requests.exceptions.ReadTimeout as error:
+                logger.error('%s encountered, retrying in 10min', error)
                 await asyncio.sleep(600)
             except KeyboardInterrupt:
                 break

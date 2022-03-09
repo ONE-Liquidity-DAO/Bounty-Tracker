@@ -24,6 +24,7 @@ class TradeFetcher(BaseFetcher):
     async def fetch(self, account_info: AccountInfo, bounty_info: BountyInfo) -> None:
         '''update all latest trades based on api every interval'''
         exchange = account_info.exchange
+        logger.info('fetching %s for %s', account_info.user_info.display_name, bounty_info.campaign_id)
         if exchange.has['fetchMyTrades']:
             trades = await self.fetch_my_trades_by_symbol(account_info, bounty_info)
         else:

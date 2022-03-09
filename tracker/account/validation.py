@@ -26,10 +26,21 @@ async def validate_account_info(account_info: AccountInfo) -> None:
 
     account_info.user_info.valid = True
 
+def check_duplicated_api(account_infos: list[AccountInfo]) -> None:
+    '''check for duplicated api key and disable them'''
+    api_keys = []
+    for account_info in account_infos:
+        if account_info.user_info.api_key in api_keys:
+            account_info.user_info.valid = False
+            account_info.user_info.reason = 'DuplicatedError'
+            logger.warning('duplicated api key: %s is duplicated, skipping user',
+                           account_info.user_info.display_name)
+        api_keys.append(account_info.user_info.api_key)
 
 async def validate_account_infos(account_infos: list[AccountInfo]) -> None:
     '''run all validation account task asynchronously'''
     tasks = []
+    check_duplicated_api(account_infos)
     for account_info in account_infos:
         tasks.append(validate_account_info(account_info))
     await asyncio.gather(*tasks)
