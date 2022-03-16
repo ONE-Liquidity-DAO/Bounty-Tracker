@@ -9,12 +9,12 @@ from tracker.bounty.bounty import BountyInfo
 from tracker.connector.ccxt.base_fetcher import BaseFetcher
 from tracker.connector.ccxt.ccxt_data import CCXTTrade
 from tracker.connector.ccxt.pagination import pagination
-from tracker.database.orm_data import SQLTrade
+from tracker.database.tracker_orm_data import SQLTrade
 
 logger = logging.getLogger(__name__)
 
 HOUR_MS = 60 * 60 * 1000
-MAX_LOOKBACK_FOR_TRADES_IN_MS = 1 * HOUR_MS
+MAX_LOOKBACK_FOR_TRADES_IN_MS = 24 * HOUR_MS
 
 
 class TradeFetcher(BaseFetcher):
@@ -40,7 +40,7 @@ class TradeFetcher(BaseFetcher):
                 continue
 
             orm = ccxt_trade.to_orm_class(
-                account_info.user_info, bounty_info, SQLTrade)
+                SQLTrade, account_info.user_info, bounty_info)
             orm_list.append(orm)
 
         logger.debug('orm_trade_list \n %s', orm_list)

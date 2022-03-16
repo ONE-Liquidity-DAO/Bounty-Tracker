@@ -26,13 +26,13 @@ class AccountValidator:
     def __init__(self,
                  g_sheet: GSheet,
                  account_infos: list[AccountInfo] = None,
-                 update_interval: int = 3600) -> None:
+                 update_interval: int = 600) -> None:
         self.g_sheet = g_sheet
         self.account_infos = account_infos
         self.update_interval = update_interval
 
     @classmethod
-    async def create(cls, g_sheet: GSheet, update_interval: float = 3600) -> 'AccountValidator':
+    async def create(cls, g_sheet: GSheet, update_interval: float = 600) -> 'AccountValidator':
         '''a default method of starting account validator'''
         account_infos = await get_validated_account_infos(g_sheet)
         return cls(g_sheet=g_sheet, account_infos=account_infos, update_interval=update_interval)
