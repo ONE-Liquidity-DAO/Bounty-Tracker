@@ -72,7 +72,7 @@ class BaseFetcher(ABC):
                 logger.warning(
                     '%s rate limit exceeded waiting additional 5min', error)
                 await asyncio.sleep(300)
-            except (ExchangeError, InvalidNonce, RequestTimeout) as error:
+            except (ExchangeError, InvalidNonce, RequestTimeout, TimeoutError) as error:
                 logger.warning(
                     '%s waiting additional 1min', error)
                 await asyncio.sleep(60)

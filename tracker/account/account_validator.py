@@ -1,6 +1,7 @@
 '''
 main function for account
 '''
+import logging
 import asyncio
 
 from tracker.account.create_account_infos import AccountInfo, create_account_infos
@@ -8,6 +9,8 @@ from tracker.account.get_user_info import get_user_infos
 from tracker.account.validation import (update_validity_in_sheet,
                                     validate_account_infos)
 from tracker.core.gsheet import GSheet
+
+logger = logging.getLogger(__name__)
 
 
 async def get_validated_account_infos(g_sheet: GSheet) -> list[AccountInfo]:
@@ -43,6 +46,9 @@ class AccountValidator:
             try:
                 self.account_infos = await get_validated_account_infos(self.g_sheet)
                 await asyncio.sleep(self.update_interval)
+            except TimeoutError as err:
+                logger.warning('%s: retry in 30sec', err)
+                await asyncio.sleep(30)
             except KeyboardInterrupt:
                 break
 
