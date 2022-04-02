@@ -14,7 +14,7 @@ from tracker.database.tracker_orm_data import SQLTrade
 logger = logging.getLogger(__name__)
 
 HOUR_MS = 60 * 60 * 1000
-MAX_LOOKBACK_FOR_TRADES_IN_MS = 24 * HOUR_MS
+MAX_LOOKBACK_FOR_TRADES_IN_MS = 7*24 * HOUR_MS
 
 
 class TradeFetcher(BaseFetcher):

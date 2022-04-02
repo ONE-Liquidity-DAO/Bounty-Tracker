@@ -1,4 +1,4 @@
-update_interval: 60
+update_interval: 600
 limits:
   okex: 100 #
 pagination:

@@ -74,16 +74,15 @@ class BaseFetcher(ABC):
                 await asyncio.sleep(300)
             except (ExchangeError, InvalidNonce, RequestTimeout, TimeoutError) as error:
                 logger.warning(
-                    '%s waiting additional 1min', error)
-                await asyncio.sleep(60)
+                    '%s waiting additional 5min', error)
+                await asyncio.sleep(300)
             except KeyboardInterrupt as error:
                 logger.info('closing fetcher due to user end %s', error)
                 await self.close_all()
                 raise error
-            # except Exception as error:
-            #     logger.exception('Unexpected error encountered %s', error)
-            #     await self.close_all()
-            #     raise error
+            except Exception as error:
+                logger.exception('Unexpected error encountered %s wait additional 5min', error)
+                await asyncio.sleep(300)
 
     async def start(self) -> None:
         '''start the loop for all account info'''
