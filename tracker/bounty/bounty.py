@@ -65,11 +65,13 @@ class Bounty:
 
     def __init__(self, g_sheet: GSheet) -> None:
         self.g_sheet = g_sheet
-        self.info: list[BountyInfo] = self.get_active_bounty_infos()
+        self.info: list[BountyInfo] = None
+        self.get_active_bounty_infos()
 
-    def get_active_bounty_infos(self):
+    def get_active_bounty_infos(self) -> list[BountyInfo]:
         '''return active bounty from google sheet'''
-        return get_active_bounty_infos(self.g_sheet)
+        self.info = get_active_bounty_infos(self.g_sheet)
+        return self.info
 
     async def start(self) -> None:
         '''start a loop to check for new bounty every 10 minutes'''
@@ -89,6 +91,7 @@ def test() -> None:
     sheet = GSheet.create()
     bounty_infos = get_active_bounty_infos(sheet)
     print(bounty_infos)
+    print(get_bounty_info_from_campaign_id(sheet, 8))
 
 
 if __name__ == '__main__':

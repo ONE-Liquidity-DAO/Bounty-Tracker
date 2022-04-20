@@ -128,6 +128,7 @@ async def pagination(func: Callable,
                      end_time: int,
                      limit: int,
                      params: dict = None) -> list[dict]:
+    '''returns full result'''
     pagination_method = PAGINATION_METHODS.get(
         method, pagination_by_date_time)
     results = await pagination_method(
