@@ -28,18 +28,21 @@ class UserInfo:  # pylint: disable=[too-many-instance-attributes, invalid-name]
 
 def get_user_infos(sheet: GSheet) -> list[UserInfo]:
     '''get all account infos from api keys'''
-    user_infos = []
-    worksheet = sheet.user_info_ws
-    dataframe = sheet.get_worksheet_as_dataframe(worksheet)
-    # replace nan with none to convert to dictionary
-    dataframe = dataframe.replace({pd.NA: None})
-    for _, row in dataframe.iterrows():
-        row_dict = row.to_dict()
-        user_info = UserInfo(**row_dict)
-        if not user_info.Timestamp:
-            continue
-        user_infos.append(user_info)
-    return user_infos
+    try:
+        user_infos = []
+        worksheet = sheet.user_info_ws
+        dataframe = sheet.get_worksheet_as_dataframe(worksheet)
+        # replace nan with none to convert to dictionary
+        dataframe = dataframe.replace({pd.NA: None})
+        for _, row in dataframe.iterrows():
+            row_dict = row.to_dict()
+            user_info = UserInfo(**row_dict)
+            if not user_info.Timestamp:
+                continue
+            user_infos.append(user_info)
+        return user_infos
+    except Exception:
+        return []
 
 
 def test() -> None:
